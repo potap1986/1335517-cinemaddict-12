@@ -131,7 +131,7 @@ for (let i = 0; i < FILMS_COUNT_EXTRA; i++) {
 
 const filmsListExtra = siteMainElement.querySelectorAll(`.films-list--extra`);
 
-filmsListExtra.forEach ( function (elem) {
+filmsListExtra.forEach (function (elem) {
   let filmsListExtraElement = elem.querySelector(`.films-list__container`);
   for (let i = 0; i < FILMS_COUNT_EXTRA; i++) {
     render(filmsListExtraElement, createFilmElementTemplate(), `beforeend`);
