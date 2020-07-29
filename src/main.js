@@ -1,7 +1,7 @@
 "use strict";
 
-const TASK_COUNT = 5;
-const TASK_COUNT_EXTRA = 2;
+const FILMS_COUNT = 5;
+const FILMS_COUNT_EXTRA = 2;
 
 const siteHeaderElement = document.querySelector(`.header`);
 const siteHeaderLogoElement = siteHeaderElement.querySelector(`.logo`);
@@ -110,7 +110,7 @@ const render = (container, template, place) => {
   container.insertAdjacentHTML(place, template);
 };
 
-render(siteHeaderLogoElement, createHeaderProfileTemplate(), 'afterend');
+render(siteHeaderLogoElement, createHeaderProfileTemplate(), `afterend`);
 render(siteMainElement, createSiteNavigationTemplate(), `beforeend`);
 render(siteMainElement, createSortTemplate(), `beforeend`);
 render(siteMainElement, createFilmsTemplate(), `beforeend`);
@@ -119,21 +119,23 @@ const filmsElement = siteMainElement.querySelector(`.films`);
 const filmsList = siteMainElement.querySelector(`.films-list`);
 const filmsListElement = filmsList.querySelector(`.films-list__container`);
 
-for (let i = 0; i < TASK_COUNT; i++) {
+for (let i = 0; i < FILMS_COUNT; i++) {
   render(filmsListElement, createFilmElementTemplate(), `beforeend`);
-};
+}
 
 render(filmsListElement, createShowMoreButtonTemplate(), `beforeend`);
 
-for (let i = 0; i < TASK_COUNT_EXTRA; i++) {
+for (let i = 0; i < FILMS_COUNT_EXTRA; i++) {
   render(filmsElement, createFilmsExtraTemplate(filmsExtraTitle[i]), `beforeend`);
+}
 
-  const filmsListExtra = siteMainElement.querySelector(`.films-list--extra`);
-  const filmsListExtraElement = filmsListExtra.querySelector(`.films-list__container`);
+const filmsListExtra = siteMainElement.querySelectorAll(`.films-list--extra`);
 
-  for (let i = 0; i < TASK_COUNT_EXTRA; i++) {
+filmsListExtra.forEach ( function (elem) {
+  let filmsListExtraElement = elem.querySelector(`.films-list__container`);
+  for (let i = 0; i < FILMS_COUNT_EXTRA; i++) {
     render(filmsListExtraElement, createFilmElementTemplate(), `beforeend`);
-  };
-};
+  }
+});
 
 render(siteFooterElement, createFooterStatisticsTemplate(), `beforeend`);
