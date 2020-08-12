@@ -1,8 +1,9 @@
 import {getDurationString} from '../util.js';
+import {createElement} from "../util.js";
 
 const getCommentString = (comments) => `${comments.length} comment${comments.length === 1 ? `` : `s`}`;
 
-export const createFilmElementTemplate = (film) => {
+const createFilmElementTemplate = (film) => {
   const {poster, title, rating, duration, releaseDate, genres, description, comments, isFavorite, isWatched, inWatchlist} = film;
   return `<article class="film-card">
       <h3 class="film-card__title">${title}</h3>
@@ -22,3 +23,25 @@ export const createFilmElementTemplate = (film) => {
       </form>
     </article>`;
 };
+export default class FilmElement {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmElementTemplate(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
