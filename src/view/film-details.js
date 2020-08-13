@@ -1,5 +1,5 @@
 import {Month} from '../const.js';
-import {getDurationString} from '../util.js';
+import {getDurationString, createElement} from '../util.js';
 
 const getDateString = (date) => {
   const dateObj = new Date(date);
@@ -20,10 +20,10 @@ const getCommentDateString = (date) => {
   return `${year}/${month}/${day} ${hour > 9 ? hour : `0${hour}`}:${minutes > 9 ? minutes : `0${minutes}`}`;
 };
 
-export const createFilmDetailsTemplate = (film) => {
+const createFilmDetailsTemplate = (film) => {
   const {poster, title, ageLimit, rating, director, writers, actors, duration, releaseDate, country, genres, description, comments, isFavorite, isWatched, inWatchlist} = film;
   return `<section class="film-details"
-    style="display: none"
+    style="display: block"
     >
     <form class="film-details__inner" action="" method="get">
       <div class="form-details__top-container">
@@ -153,3 +153,25 @@ export const createFilmDetailsTemplate = (film) => {
     </form>
   </section>`;
 };
+export default class FilmDetails {
+  constructor(film) {
+    this._film = film;
+    this._element = null;
+  }
+
+  getTemplate() {
+    return createFilmDetailsTemplate(this._film);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
