@@ -1,4 +1,5 @@
-import {Time} from './const';
+import {Time} from './const.js';
+import {getRandomBool, getRandomItem, getRandomNumber, getRandomSet} from "./utils/common.js";
 
 const FILMS_NUM = 20;
 
@@ -87,14 +88,6 @@ const EMOTIONS = [
 ];
 
 const AGE_LIMITS = [14, 16, 18, 21];
-
-const getRandomBool = (chance = 0.5) => Math.random() < chance;
-const getRandomItem = (array) => array[Math.floor(Math.random() * array.length)];
-const getRandomNumber = (min = 0, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-const getRandomSorting = () => Math.random() - 0.5;
-
-const getRandomSet = (items, num = 3) =>
-  [...new Set(items.sort(getRandomSorting).slice(0, num))];
 
 const getComment = () => ({
   emotion: getRandomItem(EMOTIONS),

@@ -11,7 +11,7 @@ import FooterStatisticsView from "./view/footer-statistics.js";
 import FilmDetailsView from "./view/film-details.js";
 import {Mock} from "./mock.js";
 import {FilterID} from "./const.js";
-import {render, RenderPosition} from "./util.js";
+import {render, RenderPosition, remove} from "./utils/render.js";
 
 const FILMS_COUNT = 5;
 
@@ -53,19 +53,19 @@ const renderFilm = (container, film) => {
     }
   };
 
-  filmComponent.getElement().querySelector(`.film-card__poster`).addEventListener(`click`, () => {
+  filmComponent.setPosterClickHandler(() => {
     addFilmPopup();
   });
 
-  filmComponent.getElement().querySelector(`.film-card__title`).addEventListener(`click`, () => {
+  filmComponent.setTitleClickHandler(() => {
     addFilmPopup();
   });
 
-  filmComponent.getElement().querySelector(`.film-card__comments`).addEventListener(`click`, () => {
+  filmComponent.setCommentsClickHandler(() => {
     addFilmPopup();
   });
 
-  filmPopupComponent.getElement().querySelector(`.film-details__close-btn`).addEventListener(`click`, () => {
+  filmPopupComponent.setCloseClickHandler(() => {
     removeFilmPopup();
   });
 
@@ -121,22 +121,19 @@ if (films.length === 0) {
 
   shownFilms.forEach((film) => renderFilm(filmsListElement, film));
 
-  render(filmsList, new ShowMoreButtonView().getElement(), RenderPosition.BEFOREEND);
+  const loadMoreButtonComponent = new ShowMoreButtonView();
+  render(filmsList, loadMoreButtonComponent.getElement(), RenderPosition.BEFOREEND);
 
-  const onShowMoreBtnClick = () => {
+  loadMoreButtonComponent.setClickHandler(() => {
     const renderingFilms = films.slice(shownFilms.length, shownFilms.length + FILMS_COUNT);
     renderingFilms.forEach((film) => {
       renderFilm(filmsListElement, film);
     });
     shownFilms = shownFilms.concat(renderingFilms);
     if (renderingFilms.length < FILMS_COUNT) {
-      showMoreBtn.style.display = `none`;
-      showMoreBtn.removeEventListener(`click`, onShowMoreBtnClick);
+      remove(loadMoreButtonComponent);
     }
-  };
-
-  const showMoreBtn = filmsList.querySelector(`.films-list__show-more`);
-  showMoreBtn.addEventListener(`click`, onShowMoreBtnClick);
+  });
 
   filmsExtraLists.forEach((list) => render(filmsElement, new FilmsExtraView(list).getElement(), RenderPosition.BEFOREEND));
   const extraLists = filmsElement.querySelectorAll(`.films-list--extra`);
