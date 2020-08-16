@@ -1,24 +1,5 @@
-import {Month} from '../const.js';
-import {getDurationString, createElement} from '../util.js';
-
-const getDateString = (date) => {
-  const dateObj = new Date(date);
-  const day = dateObj.getDate();
-  const month = dateObj.getMonth() + 1;
-  const year = dateObj.getFullYear();
-
-  return `${day} ${Month[month]} ${year}`;
-};
-
-const getCommentDateString = (date) => {
-  const dateObj = new Date(date);
-  const day = dateObj.getDate();
-  const month = dateObj.getMonth() + 1;
-  const year = dateObj.getFullYear();
-  const hour = dateObj.getHours();
-  const minutes = dateObj.getMinutes();
-  return `${year}/${month}/${day} ${hour > 9 ? hour : `0${hour}`}:${minutes > 9 ? minutes : `0${minutes}`}`;
-};
+import {getDurationString, getDateString, getCommentDateString} from '../utils/task.js';
+import AbstractView from "./abstract.js";
 
 const createFilmDetailsTemplate = (film) => {
   const {poster, title, ageLimit, rating, director, writers, actors, duration, releaseDate, country, genres, description, comments, isFavorite, isWatched, inWatchlist} = film;
@@ -153,25 +134,24 @@ const createFilmDetailsTemplate = (film) => {
     </form>
   </section>`;
 };
-export default class FilmDetails {
+export default class FilmDetails extends AbstractView {
   constructor(film) {
+    super();
     this._film = film;
-    this._element = null;
+    this._closeClickHandler = this._closeClickHandler.bind(this);
   }
 
   getTemplate() {
     return createFilmDetailsTemplate(this._film);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
+  _closeClickHandler(evt) {
+    evt.preventDefault();
+    this._callback.closeClick();
   }
 
-  removeElement() {
-    this._element = null;
+  setCloseClickHandler(callback) {
+    this._callback.closeClick = callback;
+    this.getElement().querySelector(`.film-details__close-btn`).addEventListener(`click`, this._closeClickHandler);
   }
 }

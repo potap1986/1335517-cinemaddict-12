@@ -20,6 +20,12 @@ export const Month = {
   12: `December`,
 };
 
+export const SortType = {
+  DEFAULT: `default`,
+  BY_DATE: `by-date`,
+  BY_RATING: `by-rating`
+};
+
 export const FilterID = {
   all: `All movies`,
   watchlist: `Watchlist`,
