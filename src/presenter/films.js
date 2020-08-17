@@ -7,6 +7,7 @@ import ShowMoreButtonView from "../view/show-more-button.js";
 import FilmsExtraView from "../view/films-extra.js";
 import FilmDetailsView from "../view/film-details.js";
 import {render, RenderPosition, remove} from "../utils/render.js";
+import {SortType} from "../const.js";
 
 const FILMS_COUNT = 5;
 
@@ -20,19 +21,50 @@ export default class Films {
     this._filmsExtraComponent = new FilmsExtraView();
 
     // this._handleShowMoreButtonClick = this._handleShowMoreButtonClick.bind(this);
-  }
+    this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
 
   init(filmsArray) {
     this._filmsArray = filmsArray.slice();
+    this._sourseFilmsArray = filmsArray.slice();
     this._filmsComponent = new FilmsView(this._filmsArray.length);
-    render(this._filmsContainer, this._sortComponent, RenderPosition.BEFOREEND);
+    this._renderSort();
     render(this._filmsContainer, this._filmsComponent, RenderPosition.BEFOREEND);
 
     this._renderFilms();
   }
 
+  _sortFilms(sortType) {
+    switch (sortType) {
+      case SortType.BY_DATE:
+        this._filmsArray.sort((a, b) => b.releaseDate - a.releaseDate);
+        break;
+      case SortType.BY_RATING:
+        this._filmsArray.sort((a, b) => b.rating - a.rating);
+        break;
+      default:
+        this._filmsArray = this._sourseFilmsArray.slice();
+    }
+
+    this._currenSortType = sortType;
+  }
+
+  _handleSortTypeChange(sortType) {
+    if (this._currenSortType === sortType) {
+      return;
+    }
+
+    this._filmsListElement.innerHTML = ``;
+    this._sortFilms(sortType);
+    this._renderFilmList();
+  }
+
+  _renderSort() {
+    render(this._filmsContainer, this._sortComponent, RenderPosition.BEFOREEND);
+    this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
+  }
+
   _renderFilm(container, film) {
-    const filmComponent = new FilmElementView(film);
+    this._filmComponent = new FilmElementView(film);
     const filmPopupComponent = new FilmDetailsView(film);
     const siteBody = document.querySelector(`body`);
     const siteFooterElement = siteBody.querySelector(`.footer`);
@@ -54,15 +86,15 @@ export default class Films {
       }
     };
 
-    filmComponent.setPosterClickHandler(() => {
+    this._filmComponent.setPosterClickHandler(() => {
       addFilmPopup();
     });
 
-    filmComponent.setTitleClickHandler(() => {
+    this._filmComponent.setTitleClickHandler(() => {
       addFilmPopup();
     });
 
-    filmComponent.setCommentsClickHandler(() => {
+    this._filmComponent.setCommentsClickHandler(() => {
       addFilmPopup();
     });
 
@@ -70,7 +102,7 @@ export default class Films {
       removeFilmPopup();
     });
 
-    render(container, filmComponent, RenderPosition.BEFOREEND);
+    render(container, this._filmComponent, RenderPosition.BEFOREEND);
   }
 
   _renderFilms() {
@@ -85,14 +117,17 @@ export default class Films {
       return;
     }
 
+    this._renderFilmList();
+    this._renderShowMoreButton();
+    this._renderFilmsExtra();
+  }
+
+  _renderFilmList() {
     this._filmsListElement = this._filmsList.querySelector(`.films-list__container`);
 
     this._shownFilms = this._filmsArray.slice(0, FILMS_COUNT);
 
     this._shownFilms.forEach((film) => this._renderFilm(this._filmsListElement, film));
-
-    this._renderShowMoreButton();
-    this._renderFilmsExtra();
   }
 
   _renderNoFilmElement() {
