@@ -22,7 +22,6 @@ export default class Films {
 
     // this._handleShowMoreButtonClick = this._handleShowMoreButtonClick.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
-  }
 
   init(filmsArray) {
     this._filmsArray = filmsArray.slice();
