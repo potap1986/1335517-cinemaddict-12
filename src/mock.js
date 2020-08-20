@@ -98,7 +98,10 @@ const getComment = () => ({
 
 const getComments = (num = 5) => Array.from({length: num}, getComment);
 
+const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+
 const getFilm = () => ({
+  id: generateId(),
   title: getRandomItem(filmTitles),
   director: getRandomItem(PEOPLE),
   writers: getRandomSet(PEOPLE, getRandomNumber(1, 3)),

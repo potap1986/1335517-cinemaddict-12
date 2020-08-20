@@ -2,35 +2,40 @@
 import SortView from "../view/sort.js";
 import FilmsView from "../view/films.js";
 import NoFilmElementView from "../view/no-film-element.js";
-import FilmElementView from "../view/film-element.js";
 import ShowMoreButtonView from "../view/show-more-button.js";
 import FilmsExtraView from "../view/films-extra.js";
-import FilmDetailsView from "../view/film-details.js";
-import {render, RenderPosition, remove} from "../utils/render.js";
-import {SortType} from "../const.js";
-
-const FILMS_COUNT = 5;
-
+import FilmPresenter from "./film.js";
+import {updateItem} from "../utils/common.js";
+import {render, RenderPosition, remove, getListFilms} from "../utils/render.js";
+import {SortType, FILMS_COUNT, FilmsExtraTitleID} from "../const.js";
 export default class Films {
   constructor(filmsContainer) {
     this._filmsContainer = filmsContainer;
+    this._filmPresenter = {};
+    this._filmsCount = FILMS_COUNT;
 
     this._sortComponent = new SortView();
     this._noFilmElementComponent = new NoFilmElementView();
     this._showMoreButtonComponent = new ShowMoreButtonView();
-    this._filmsExtraComponent = new FilmsExtraView();
 
-    // this._handleShowMoreButtonClick = this._handleShowMoreButtonClick.bind(this);
+    this._handleFilmChange = this._handleFilmChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
+  }
 
   init(filmsArray) {
     this._filmsArray = filmsArray.slice();
-    this._sourseFilmsArray = filmsArray.slice();
+    this._sourcedFilmsArray = filmsArray.slice();
     this._filmsComponent = new FilmsView(this._filmsArray.length);
     this._renderSort();
     render(this._filmsContainer, this._filmsComponent, RenderPosition.BEFOREEND);
 
     this._renderFilms();
+  }
+
+  _handleFilmChange(updatedFilm) {
+    this._filmsArray = updateItem(this._filmsArray, updatedFilm);
+    this._sourcedFilmsArray = updateItem(this._sourcedFilmsArray, updatedFilm);
+    this._filmPresenter[updatedFilm.id].init(updatedFilm);
   }
 
   _sortFilms(sortType) {
@@ -42,7 +47,7 @@ export default class Films {
         this._filmsArray.sort((a, b) => b.rating - a.rating);
         break;
       default:
-        this._filmsArray = this._sourseFilmsArray.slice();
+        this._filmsArray = this._sourcedFilmsArray.slice();
     }
 
     this._currenSortType = sortType;
@@ -53,9 +58,19 @@ export default class Films {
       return;
     }
 
-    this._filmsListElement.innerHTML = ``;
+    this._clearFilmList();
     this._sortFilms(sortType);
     this._renderFilmList();
+    this._renderFilmsExtra();
+  }
+
+  _clearFilmList() {
+  //  this._filmsListElement.innerHTML = ``; ?????
+    Object
+      .values(this._filmPresenter)
+      .forEach((presenter) => presenter.destroy());
+    this._filmPresenter = {};
+    this._filmsCount = FILMS_COUNT;
   }
 
   _renderSort() {
@@ -64,45 +79,9 @@ export default class Films {
   }
 
   _renderFilm(container, film) {
-    this._filmComponent = new FilmElementView(film);
-    const filmPopupComponent = new FilmDetailsView(film);
-    const siteBody = document.querySelector(`body`);
-    const siteFooterElement = siteBody.querySelector(`.footer`);
-
-    const addFilmPopup = () => {
-      siteFooterElement.appendChild(filmPopupComponent.getElement());
-      document.addEventListener(`keydown`, onEscKeyDown);
-    };
-
-    const removeFilmPopup = () => {
-      siteFooterElement.removeChild(filmPopupComponent.getElement());
-    };
-
-    const onEscKeyDown = (evt) => {
-      if (evt.key === `Escape` || evt.key === `Esc`) {
-        evt.preventDefault();
-        removeFilmPopup();
-        document.removeEventListener(`keydown`, onEscKeyDown);
-      }
-    };
-
-    this._filmComponent.setPosterClickHandler(() => {
-      addFilmPopup();
-    });
-
-    this._filmComponent.setTitleClickHandler(() => {
-      addFilmPopup();
-    });
-
-    this._filmComponent.setCommentsClickHandler(() => {
-      addFilmPopup();
-    });
-
-    filmPopupComponent.setCloseClickHandler(() => {
-      removeFilmPopup();
-    });
-
-    render(container, this._filmComponent, RenderPosition.BEFOREEND);
+    const filmPresenter = new FilmPresenter(container, this._handleFilmChange);
+    filmPresenter.init(film);
+    this._filmPresenter[film.id] = filmPresenter;
   }
 
   _renderFilms() {
@@ -125,7 +104,7 @@ export default class Films {
   _renderFilmList() {
     this._filmsListElement = this._filmsList.querySelector(`.films-list__container`);
 
-    this._shownFilms = this._filmsArray.slice(0, FILMS_COUNT);
+    this._shownFilms = this._filmsArray.slice(0, this._filmsCount);
 
     this._shownFilms.forEach((film) => this._renderFilm(this._filmsListElement, film));
   }
@@ -138,43 +117,30 @@ export default class Films {
     render(this._filmsList, this._showMoreButtonComponent, RenderPosition.BEFOREEND);
 
     this._showMoreButtonComponent.setClickHandler(() => {
-      const renderingFilms = this._filmsArray.slice(this._shownFilms.length, this._shownFilms.length + FILMS_COUNT);
+      const renderingFilms = this._filmsArray.slice(this._shownFilms.length, this._shownFilms.length + this._filmsCount);
       renderingFilms.forEach((film) => {
         this._renderFilm(this._filmsListElement, film);
       });
       this._shownFilms = this._shownFilms.concat(renderingFilms);
-      if (renderingFilms.length < FILMS_COUNT) {
+      if (renderingFilms.length < this._filmsCount) {
         remove(this._showMoreButtonComponent);
       }
     });
   }
 
   _renderFilmsExtra() {
-    const filmsExtraTitle = [
-      `Top rated`,
-      `Most commented`
-    ];
+    const filmsExtraTitle = Object.values(FilmsExtraTitleID);
 
-    const getListFilms = (filmList, title) => {
-      switch (title) {
-        case `Top rated`:
-          return filmList.slice().sort((a, b) => b.rating - a.rating).slice(0, 2);
-        case `Most commented`:
-          return filmList.slice().sort((a, b) => b.comments.length - a.comments.length).slice(0, 2);
-      }
-      return [];
-    };
-
-    const filmsExtraLists = filmsExtraTitle.map((title) => ({
+    this._filmsExtraLists = filmsExtraTitle.map((title) => ({
       title,
       films: getListFilms(this._filmsArray, title),
     }));
 
-    filmsExtraLists.forEach((list) => render(this._filmsComponent, new FilmsExtraView(list), RenderPosition.BEFOREEND));
-    const extraLists = this._filmsElement.querySelectorAll(`.films-list--extra`);
-    extraLists.forEach((list, i) => {
+    this._filmsExtraLists.forEach((list) => render(this._filmsComponent, new FilmsExtraView(list), RenderPosition.BEFOREEND));
+    this._extraLists = this._filmsElement.querySelectorAll(`.films-list--extra`);
+    this._extraLists.forEach((list, i) => {
       const extraFilmsContainer = list.querySelector(`.films-list__container`);
-      filmsExtraLists[i].films.forEach((film) => this._renderFilm(extraFilmsContainer, film));
+      this._filmsExtraLists[i].films.forEach((film) => this._renderFilm(extraFilmsContainer, film));
     });
   }
 }
