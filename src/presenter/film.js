@@ -10,8 +10,8 @@ export default class Film {
     this._filmComponent = null;
     this._filmPopupComponent = null;
 
-    this._addFilmPopupHandler = this._addFilmPopupHandler.bind(this);
-    this._removeFilmPopupHandler = this._removeFilmPopupHandler.bind(this);
+    this._openPopup = this._openPopup.bind(this);
+    this._closePopup = this._closePopup.bind(this);
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleWatchlistClick = this._handleWatchlistClick.bind(this);
     this._handleWatchedClick = this._handleWatchedClick.bind(this);
@@ -30,10 +30,10 @@ export default class Film {
     this._filmPopupComponent = new FilmDetailsView(film);
 
 
-    this._filmComponent.setPosterClickHandler(this._addFilmPopupHandler);
-    this._filmComponent.setTitleClickHandler(this._addFilmPopupHandler);
-    this._filmComponent.setCommentsClickHandler(this._addFilmPopupHandler);
-    this._filmPopupComponent.setCloseClickHandler(this._removeFilmPopupHandler);
+    this._filmComponent.setPosterClickHandler(this._openPopup);
+    this._filmComponent.setTitleClickHandler(this._openPopup);
+    this._filmComponent.setCommentsClickHandler(this._openPopup);
+    this._filmPopupComponent.setCloseClickHandler(this._closePopup);
     this._filmComponent.setWatchlistClickHandler(this._handleWatchlistClick);
     this._filmComponent.setWatchedClickHandler(this._handleWatchedClick);
     this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -43,11 +43,11 @@ export default class Film {
       return;
     }
 
-    if (this._filmContainer.getElement().contains(prevFilmComponent.getElement())) {
+    if (this._filmContainer.contains(prevFilmComponent.getElement())) {
       replace(this._filmComponent, prevFilmComponent);
     }
 
-    if (this._siteFooterElement.getElement().contains(prevFilmPopupComponent.getElement())) {
+    if (this._siteFooterElement.contains(prevFilmPopupComponent.getElement())) {
       replace(this._filmPopupComponent, prevFilmPopupComponent);
     }
 
@@ -60,19 +60,25 @@ export default class Film {
     remove(this._filmPopupComponent);
   }
 
-  _addFilmPopupHandler() {
+  _openPopup() {
     this._siteFooterElement.appendChild(this._filmPopupComponent.getElement());
+
+
+    this._filmPopupComponent.setWatchlistPopupClickHandler(this._handleWatchlistClick);
+    this._filmPopupComponent.setWatchedPopupClickHandler(this._handleWatchedClick);
+    this._filmPopupComponent.setFavoritePopupClickHandler(this._handleFavoriteClick);
+
     document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
-  _removeFilmPopupHandler() {
+  _closePopup() {
     this._siteFooterElement.removeChild(this._filmPopupComponent.getElement());
   }
 
   _escKeyDownHandler(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
-      this._removeFilmPopupHandler();
+      this._closePopup();
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
     }
   }
@@ -83,7 +89,7 @@ export default class Film {
             {},
             this._film,
             {
-              isWatchlist: !this._film.isWatchlist
+              inWatchlist: !this._film.inWatchlist
             }
         )
     );

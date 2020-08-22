@@ -160,7 +160,7 @@ export default class FilmDetails extends AbstractView {
 
   _watchlistClickHandler(evt) {
     evt.preventDefault();
-    this._callback.wacthListClick();
+    this._callback.watchlistClick();
   }
 
   _watchedClickHandler(evt) {
@@ -170,20 +170,20 @@ export default class FilmDetails extends AbstractView {
 
   _favoriteClickHandler(evt) {
     evt.preventDefault();
-    this._callback.favotriteClick();
+    this._callback.favoriteClick();
   }
 
-  setWatchlistClickHandler(callback) {
+  setWatchlistPopupClickHandler(callback) {
     this._callback.watchlistClick = callback;
     this.getElement().querySelector(`.film-details__control-label--watchlist`).addEventListener(`click`, this._watchlistClickHandler);
   }
 
-  setWatchedClickHandler(callback) {
+  setWatchedPopupClickHandler(callback) {
     this._callback.watchedClick = callback;
     this.getElement().querySelector(`.film-details__control-label--watched`).addEventListener(`click`, this._watchedClickHandler);
   }
 
-  setFavoriteClickHandler(callback) {
+  setFavoritePopupClickHandler(callback) {
     this._callback.favoriteClick = callback;
     this.getElement().querySelector(`.film-details__control-label--favorite`).addEventListener(`click`, this._favoriteClickHandler);
   }

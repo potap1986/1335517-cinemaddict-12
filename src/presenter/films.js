@@ -12,6 +12,7 @@ export default class Films {
   constructor(filmsContainer) {
     this._filmsContainer = filmsContainer;
     this._filmPresenter = {};
+    this._filmExtraPresenter = {};
     this._filmsCount = FILMS_COUNT;
 
     this._sortComponent = new SortView();
@@ -38,6 +39,12 @@ export default class Films {
     this._filmPresenter[updatedFilm.id].init(updatedFilm);
   }
 
+  _handleFilmExtraChange(updatedFilm) {
+    this._filmsArray = updateItem(this._filmsArray, updatedFilm);
+    this._sourcedFilmsArray = updateItem(this._sourcedFilmsArray, updatedFilm);
+    this._filmExtraPresenter[updatedFilm.id].init(updatedFilm);
+  }
+
   _sortFilms(sortType) {
     switch (sortType) {
       case SortType.BY_DATE:
@@ -61,11 +68,9 @@ export default class Films {
     this._clearFilmList();
     this._sortFilms(sortType);
     this._renderFilmList();
-    this._renderFilmsExtra();
   }
 
   _clearFilmList() {
-  //  this._filmsListElement.innerHTML = ``; ?????
     Object
       .values(this._filmPresenter)
       .forEach((presenter) => presenter.destroy());
@@ -84,8 +89,13 @@ export default class Films {
     this._filmPresenter[film.id] = filmPresenter;
   }
 
-  _renderFilms() {
+  _renderFilmExtra(container, film) {
+    const filmExtraPresenter = new FilmPresenter(container, this._handleFilmExtraChange);
+    filmExtraPresenter.init(film);
+    this._filmExtraPresenter[film.id] = filmExtraPresenter;
+  }
 
+  _renderFilms() {
     const siteBody = document.querySelector(`body`);
     const siteMainElement = siteBody.querySelector(`.main`);
     this._filmsElement = siteMainElement.querySelector(`.films`);
@@ -140,7 +150,7 @@ export default class Films {
     this._extraLists = this._filmsElement.querySelectorAll(`.films-list--extra`);
     this._extraLists.forEach((list, i) => {
       const extraFilmsContainer = list.querySelector(`.films-list__container`);
-      this._filmsExtraLists[i].films.forEach((film) => this._renderFilm(extraFilmsContainer, film));
+      this._filmsExtraLists[i].films.forEach((film) => this._renderFilmExtra(extraFilmsContainer, film));
     });
   }
 }

@@ -64,7 +64,7 @@ export default class FilmElement extends AbstractView {
 
   _watchlistClickHandler(evt) {
     evt.preventDefault();
-    this._callback.wacthListClick();
+    this._callback.watchlistClick();
   }
 
   _watchedClickHandler(evt) {
@@ -74,7 +74,7 @@ export default class FilmElement extends AbstractView {
 
   _favoriteClickHandler(evt) {
     evt.preventDefault();
-    this._callback.favotriteClick();
+    this._callback.favoriteClick();
   }
 
   setCommentsClickHandler(callback) {
