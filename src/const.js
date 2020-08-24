@@ -1,3 +1,7 @@
+export const FILMS_COUNT = 5;
+
+export const EXTRA_FILMS_COUNT = 2;
+
 export const Time = {
   DAY: 24 * 60 * 60 * 1000,
   WEEK: 7 * 24 * 60 * 60 * 1000,
@@ -31,4 +35,9 @@ export const FilterID = {
   watchlist: `Watchlist`,
   history: `History`,
   favorites: `Favorites`,
+};
+
+export const FilmsExtraTitleID = {
+  TOP_RATED: `Top rated`,
+  MOST_COMMENTED: `Most commented`,
 };
