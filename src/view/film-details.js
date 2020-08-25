@@ -1,4 +1,4 @@
-import {getDurationString, getDateString, getCommentDateString, formatCommentDateString, formatDateString} from '../utils/task.js';
+import {getDurationString, formatCommentDateString, formatDateString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
 import {renderTemplate, RenderPosition} from "../utils/render.js";
 
@@ -241,7 +241,7 @@ export default class FilmDetails extends AbstractView {
     if (this._myEmotion && this._textarea) {
       const objectNewComment = {
         author: `MyName`,
-        date: getCommentDateString(Date.now()),
+        date: Date.now(),
         emotion: this._myEmotion,
         text: this._textarea,
       };
