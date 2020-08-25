@@ -20,6 +20,8 @@ export default class Films {
     this._showMoreButtonComponent = new ShowMoreButtonView();
 
     this._handleFilmChange = this._handleFilmChange.bind(this);
+    this._handlePopupChange = this._handlePopupChange.bind(this);
+    this._handleFilmExtraChange = this._handleFilmExtraChange.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
   }
 
@@ -31,6 +33,12 @@ export default class Films {
     render(this._filmsContainer, this._filmsComponent, RenderPosition.BEFOREEND);
 
     this._renderFilms();
+  }
+
+  _handlePopupChange() {
+    Object
+      .values(this._filmPresenter)
+      .forEach((presenter) => presenter.resetView());
   }
 
   _handleFilmChange(updatedFilm) {
@@ -84,7 +92,7 @@ export default class Films {
   }
 
   _renderFilm(container, film) {
-    const filmPresenter = new FilmPresenter(container, this._handleFilmChange);
+    const filmPresenter = new FilmPresenter(container, this._handleFilmChange, this._handlePopupChange);
     filmPresenter.init(film);
     this._filmPresenter[film.id] = filmPresenter;
   }
