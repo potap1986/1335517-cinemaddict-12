@@ -1,4 +1,4 @@
-import {getDurationString, getDateString, getCommentDateString} from '../utils/task.js';
+import {getDurationString, formatCommentDateString, formatDateString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
 import {renderTemplate, RenderPosition} from "../utils/render.js";
 
@@ -14,11 +14,11 @@ const createCommentsListTemplate = (comments) => {
         <p class="film-details__comment-text">${text}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
-          <span class="film-details__comment-day">${getCommentDateString(date)}</span>
+          <span class="film-details__comment-day">${formatCommentDateString(date)}</span>
           <button class="film-details__comment-delete">Delete</button>
         </p>
       </div>
-    </li>`)}
+    </li>`).join(` `)}
   </ul>`;
 };
 
@@ -63,8 +63,7 @@ const createFilmDetailsTemplate = (film, myEmotion) => {
   const newComment = createNewCommentTemplate(myEmotion);
 
   return `<section class="film-details"
-    style="display: block"
-    >
+    style="display: block">
     <form class="film-details__inner" action="" method="get">
       <div class="form-details__top-container">
         <div class="film-details__close">
@@ -104,7 +103,7 @@ const createFilmDetailsTemplate = (film, myEmotion) => {
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Release Date</td>
-                <td class="film-details__cell">${getDateString(releaseDate)}</td>
+                <td class="film-details__cell">${formatDateString(releaseDate)}</td>
               </tr>
               <tr class="film-details__row">
                 <td class="film-details__term">Runtime</td>
@@ -155,24 +154,26 @@ export default class FilmDetails extends AbstractView {
   constructor(film) {
     super();
     this._film = film;
-    this._commentDelete = this._commentDelete.bind(this);
+    this._addDeleteCommentHandlers = this._addDeleteCommentHandlers.bind(this);
     this._emotionsToggler = this._emotionsToggler.bind(this);
     this._closeClickHandler = this._closeClickHandler.bind(this);
     this._watchlistClickHandler = this._watchlistClickHandler.bind(this);
     this._watchedClickHandler = this._watchedClickHandler.bind(this);
     this._favoriteClickHandler = this._favoriteClickHandler.bind(this);
     this._commentSubmitHandler = this._commentSubmitHandler.bind(this);
-
-    this._commentDelete();
+    this._emotionsHandler = this._emotionsHandler.bind(this);
+    this._addDeleteCommentHandlers();
     this._emotionsToggler();
-    document.addEventListener(`keydown`, this._commentSubmitHandler);
+  }
+
+  init() {
   }
 
   getTemplate() {
     return createFilmDetailsTemplate(this._film);
   }
 
-  _commentDelete() {
+  _addDeleteCommentHandlers() {
     const element = this.getElement();
     element.querySelectorAll(`.film-details__comment-delete`).forEach((item, i) => {
       const commentDeleteHandler = (evt) => {
@@ -186,7 +187,6 @@ export default class FilmDetails extends AbstractView {
           it.addEventListener(`click`, commentDeleteHandler);
         });
       };
-
       item.addEventListener(`click`, commentDeleteHandler);
     });
   }
@@ -211,28 +211,29 @@ export default class FilmDetails extends AbstractView {
     });
   }
 
+  _emotionsHandler(evt) {
+    evt.preventDefault();
+    const value = evt.target.value;
+    this.getElement().querySelector(`.film-details__new-comment`).remove();
+    this._myEmotion = value;
+    const newComment = createNewCommentTemplate(this._myEmotion);
+    renderTemplate(this.getElement().querySelector(`.film-details__comments-wrap`), newComment, RenderPosition.BEFOREEND);
+    if (this._textarea) {
+      this.getElement().querySelector(`.film-details__comment-input`).value = this._textarea;
+    }
+    this._saveInput();
+    this.getElement().querySelectorAll(`.film-details__emoji-item`).forEach((it) => {
+      it.addEventListener(`click`, this._emotionsHandler);
+      document.addEventListener(`keydown`, this._commentSubmitHandler);
+    });
+  }
+
   _emotionsToggler() {
     const element = this.getElement();
-
     this._saveInput();
-
     element.querySelectorAll(`.film-details__emoji-item`).forEach((item) => {
-      const emotionsHandler = (evt) => {
-        evt.preventDefault();
-        element.querySelector(`.film-details__new-comment`).remove();
-        this._myEmotion = item.value;
-        const newComment = createNewCommentTemplate(this._myEmotion);
-        renderTemplate(element.querySelector(`.film-details__comments-wrap`), newComment, RenderPosition.BEFOREEND);
-        if (this._textarea) {
-          this.getElement().querySelector(`.film-details__comment-input`).value = this._textarea;
-        }
-        this._saveInput();
-        this.getElement().querySelectorAll(`.film-details__emoji-item`).forEach((it) => {
-          it.addEventListener(`click`, emotionsHandler);
-        });
-      };
-
-      item.addEventListener(`click`, emotionsHandler);
+      item.addEventListener(`click`, this._emotionsHandler);
+      document.addEventListener(`keydown`, this._commentSubmitHandler);
     });
   }
 
@@ -240,7 +241,7 @@ export default class FilmDetails extends AbstractView {
     if (this._myEmotion && this._textarea) {
       const objectNewComment = {
         author: `MyName`,
-        date: getCommentDateString(Date.now()),
+        date: Date.now(),
         emotion: this._myEmotion,
         text: this._textarea,
       };
@@ -254,16 +255,19 @@ export default class FilmDetails extends AbstractView {
       renderTemplate(this.getElement().querySelector(`.film-details__comments-wrap`), commentsList, RenderPosition.AFTERBEGIN);
       const newComment = createNewCommentTemplate(this._myEmotion);
       renderTemplate(this.getElement().querySelector(`.film-details__comments-wrap`), newComment, RenderPosition.BEFOREEND);
-      this._commentDelete();
+      this._addDeleteCommentHandlers();
       this._emotionsToggler();
     }
   }
 
   _commentSubmitHandler(evt) {
-    if ((evt.key === `Control` /* && evt.key === `Enter` ) || (evt.key === `Meta` && evt.key === `Enter`*/)) {
+    const isEnter = evt.key === `Enter`;
+    const isControl = evt.ctrlKey;
+    const isCmd = event.metaKey;
+    if (isEnter && (isControl || isCmd)) {
       evt.preventDefault();
       this._commentSubmit();
-      document.removeEventListener(`keydown`, this._commentSubmitHandler());
+      document.removeEventListener(`keydown`, this._commentSubmitHandler);
     }
   }
 

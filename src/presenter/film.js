@@ -2,13 +2,21 @@ import FilmElementView from "../view/film-element.js";
 import FilmDetailsView from "../view/film-details.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 
+
+const Mode = {
+  DEFAULT: `DEFAULT`,
+  OPEN_POPUP: `OPEN_POPUP`
+};
+
 export default class Film {
-  constructor(filmContainer, changeData) {
+  constructor(filmContainer, changeData, changePopup) {
     this._filmContainer = filmContainer;
     this._changeData = changeData;
+    this._changePopup = changePopup;
 
     this._filmComponent = null;
     this._filmPopupComponent = null;
+    this._mode = Mode.DEFAULT;
 
     this._openPopup = this._openPopup.bind(this);
     this._closePopup = this._closePopup.bind(this);
@@ -32,8 +40,9 @@ export default class Film {
 
     this._filmComponent.setPosterClickHandler(this._openPopup);
     this._filmComponent.setTitleClickHandler(this._openPopup);
-    this._filmComponent.setCommentsClickHandler(this._openPopup);
-    this._filmPopupComponent.setCloseClickHandler(this._closePopup);
+    if (this._mode === Mode.DEFAULT) {
+      this._filmComponent.setCommentsClickHandler(this._openPopup);
+    }
     this._filmComponent.setWatchlistClickHandler(this._handleWatchlistClick);
     this._filmComponent.setWatchedClickHandler(this._handleWatchedClick);
     this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
@@ -62,24 +71,34 @@ export default class Film {
 
   _openPopup() {
     this._siteFooterElement.appendChild(this._filmPopupComponent.getElement());
-
-
+    this._filmPopupComponent.setCloseClickHandler(this._closePopup);
     this._filmPopupComponent.setWatchlistPopupClickHandler(this._handleWatchlistClick);
     this._filmPopupComponent.setWatchedPopupClickHandler(this._handleWatchedClick);
     this._filmPopupComponent.setFavoritePopupClickHandler(this._handleFavoriteClick);
+    this._changePopup();
+    this._mode = Mode.OPEN_POPUP;
 
     document.addEventListener(`keydown`, this._escKeyDownHandler);
   }
 
+  resetView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._closePopup();
+    }
+  }
+
   _closePopup() {
     this._siteFooterElement.removeChild(this._filmPopupComponent.getElement());
+    document.removeEventListener(`keydown`, this._escKeyDownHandler);
+    this._mode = Mode.DEFAULT;
+    this._changeData(this._film);
   }
 
   _escKeyDownHandler(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
-      this._closePopup();
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
+      this._closePopup();
     }
   }
 
