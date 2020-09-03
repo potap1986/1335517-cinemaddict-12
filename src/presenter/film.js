@@ -1,6 +1,7 @@
 import FilmElementView from "../view/film-element.js";
 import FilmDetailsView from "../view/film-details.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
+import {UserAction, UpdateType} from "../const.js";
 
 
 const Mode = {
@@ -37,10 +38,9 @@ export default class Film {
     this._filmComponent = new FilmElementView(film);
     this._filmPopupComponent = new FilmDetailsView(film);
 
-
-    this._filmComponent.setPosterClickHandler(this._openPopup);
-    this._filmComponent.setTitleClickHandler(this._openPopup);
     if (this._mode === Mode.DEFAULT) {
+      this._filmComponent.setPosterClickHandler(this._openPopup);
+      this._filmComponent.setTitleClickHandler(this._openPopup);
       this._filmComponent.setCommentsClickHandler(this._openPopup);
     }
     this._filmComponent.setWatchlistClickHandler(this._handleWatchlistClick);
@@ -104,6 +104,8 @@ export default class Film {
 
   _handleWatchlistClick() {
     this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
         Object.assign(
             {},
             this._film,
@@ -116,6 +118,8 @@ export default class Film {
 
   _handleWatchedClick() {
     this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
         Object.assign(
             {},
             this._film,
@@ -128,6 +132,8 @@ export default class Film {
 
   _handleFavoriteClick() {
     this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
         Object.assign(
             {},
             this._film,
