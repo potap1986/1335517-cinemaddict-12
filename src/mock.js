@@ -1,5 +1,5 @@
 import {Time} from './const.js';
-import {getRandomBool, getRandomItem, getRandomNumber, getRandomSet} from "./utils/common.js";
+import {getRandomBool, getRandomItem, getRandomNumber, getRandomSet, generateId} from "./utils/common.js";
 
 const FILMS_NUM = 20;
 
@@ -90,6 +90,7 @@ const EMOTIONS = [
 const AGE_LIMITS = [14, 16, 18, 21];
 
 const getComment = () => ({
+  id: generateId(),
   emotion: getRandomItem(EMOTIONS),
   text: getRandomItem(sentences),
   author: getRandomItem(PEOPLE),
@@ -97,8 +98,6 @@ const getComment = () => ({
 });
 
 const getComments = (num = 5) => Array.from({length: num}, getComment);
-
-const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 const getFilm = () => ({
   id: generateId(),

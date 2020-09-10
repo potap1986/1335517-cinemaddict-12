@@ -55,3 +55,7 @@ export const UpdateType = {
   MINOR: `MINOR`,
   MAJOR: `MAJOR`
 };
+
+export const activeID = {
+  id: 0,
+};

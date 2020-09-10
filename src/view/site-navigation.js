@@ -13,7 +13,6 @@ export default class SiteNavigation extends AbstractView {
     super();
     this._filters = filters;
 
-    //this._currentFilter = currentFilter;
     this._filterChangeHandler = this._filterChangeHandler.bind(this);
   }
 
