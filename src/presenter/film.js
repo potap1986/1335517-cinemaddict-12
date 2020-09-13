@@ -3,7 +3,7 @@ import FilmDetailsView from "../view/film-details.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
 import {UserAction, UpdateType, activeID} from "../const.js";
 import CommentsModel from "../model/comments.js";
-
+import {Mock} from "../mock.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -24,7 +24,7 @@ export default class Film {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleWatchlistClick = this._handleWatchlistClick.bind(this);
     this._handleWatchedClick = this._handleWatchedClick.bind(this);
-    this._handleCommentChange = this._handleCommentChange.bind(this);
+    // this._handleCommentChange = this._handleCommentChange.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     const siteBody = document.querySelector(`body`);
     this._siteFooterElement = siteBody.querySelector(`.footer`);
@@ -34,12 +34,12 @@ export default class Film {
     this._film = film;
     this._filmId = film.id;
     const commentsModel = new CommentsModel();
-    commentsModel.setComments(film.comments);
+    commentsModel.setComments(Mock.loadComments(film.id));
 
     const prevFilmComponent = this._filmComponent;
     const prevFilmPopupComponent = this._filmPopupComponent;
 
-    this._filmComponent = new FilmElementView(film);
+    this._filmComponent = new FilmElementView(film, this._changeData);
     this._filmPopupComponent = new FilmDetailsView(film, commentsModel);
 
     if (this._mode === Mode.DEFAULT) {
@@ -87,7 +87,7 @@ export default class Film {
     this._filmPopupComponent.setWatchlistPopupClickHandler(this._handleWatchlistClick);
     this._filmPopupComponent.setWatchedPopupClickHandler(this._handleWatchedClick);
     this._filmPopupComponent.setFavoritePopupClickHandler(this._handleFavoriteClick);
-    this._filmPopupComponent.changeComment(this._handleCommentChange);
+    // this._filmPopupComponent.changeComment(this._handleCommentChange);
     this._changePopup();
     this._mode = Mode.OPEN_POPUP;
 
@@ -101,11 +101,25 @@ export default class Film {
   }
 
   _closePopup() {
+    const state = {
+      isFavorite: this._filmPopupComponent.getElement().querySelector(`#favorite`).checked,
+      isWatched: this._filmPopupComponent.getElement().querySelector(`#watched`).checked,
+      inWatchlist: this._filmPopupComponent.getElement().querySelector(`#watchlist`).checked,
+    };
+
     this._siteFooterElement.removeChild(this._filmPopupComponent.getElement());
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
     this._mode = Mode.DEFAULT;
-    this._changeData(this._film);
-    // console.log(this._film);
+    this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign(
+            {},
+            this._film,
+            state
+        )
+    );
+    Mock.putMovie(Object.assign({}, {id: this._film.id}, state));
   }
 
   _escKeyDownHandler(evt) {
@@ -118,51 +132,51 @@ export default class Film {
   }
 
   _handleWatchlistClick() {
-    this._changeData(
-        UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
-        Object.assign(
-            {},
-            this._film,
-            {
-              inWatchlist: !this._film.inWatchlist
-            }
-        )
-    );
+    // this._changeData(
+    //     UserAction.UPDATE_FILM,
+    //     UpdateType.PATCH,
+    //     Object.assign(
+    //         {},
+    //         this._film,
+    //         {
+    //           inWatchlist: !this._film.inWatchlist
+    //         }
+    //     )
+    // );
   }
 
   _handleWatchedClick() {
-    this._changeData(
-        UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
-        Object.assign(
-            {},
-            this._film,
-            {
-              isWatched: !this._film.isWatched
-            }
-        )
-    );
+    // this._changeData(
+    //     UserAction.UPDATE_FILM,
+    //     UpdateType.MINOR,
+    //     Object.assign(
+    //         {},
+    //         this._film,
+    //         {
+    //           isWatched: !this._film.isWatched
+    //         }
+    //     )
+    // );
   }
 
   _handleFavoriteClick() {
-    this._changeData(
-        UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
-        Object.assign(
-            {},
-            this._film,
-            {
-              isFavorite: !this._film.isFavorite
-            }
-        )
-    );
+    // this._changeData(
+    //     UserAction.UPDATE_FILM,
+    //     UpdateType.MINOR,
+    //     Object.assign(
+    //         {},
+    //         this._film,
+    //         {
+    //           isFavorite: !this._film.isFavorite
+    //         }
+    //     )
+    // );
   }
 
-  _handleCommentChange() {
-    this._changeData(
-        UserAction.UPDATE_FILM,
-        UpdateType.MINOR
-    );
-  }
+  // _handleCommentChange() {
+  //   this._changeData(
+  //       UserAction.UPDATE_FILM,
+  //       UpdateType.MINOR
+  //   );
+  // }
 }

@@ -53,7 +53,8 @@ export const UserAction = {
 export const UpdateType = {
   PATCH: `PATCH`,
   MINOR: `MINOR`,
-  MAJOR: `MAJOR`
+  MAJOR: `MAJOR`,
+  FILTERS: `FILTERS`
 };
 
 export const activeID = {

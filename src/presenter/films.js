@@ -9,6 +9,7 @@ import SiteNavigationView from "../view/site-navigation.js";
 import FilmPresenter from "./film.js";
 import {render, RenderPosition, remove /* , getListFilms*/} from "../utils/render.js";
 import {SortType, UpdateType, UserAction, FILMS_COUNT, FilterID /* , FilmsExtraTitleID*/} from "../const.js";
+import {Mock} from "../mock.js";
 export default class Films {
   constructor(filmsContainer, filmsModel) {
     this._filmsModel = filmsModel;
@@ -64,6 +65,11 @@ export default class Films {
     }
   }
 
+  _updateFilters() {
+    this._filtersComponent.getElement().remove();
+    this._renderFilters();
+  }
+
   _handleModelEvent(updateType, data) {
     switch (updateType) {
       case UpdateType.PATCH:
@@ -76,6 +82,9 @@ export default class Films {
       case UpdateType.MAJOR:
         this._clearFilms({resetRenderedFilmCount: true, resetSortType: true});
         this._renderFilms();
+        break;
+      case UpdateType.FILTERS:
+        this._updateFilters();
         break;
     }
   }
@@ -139,7 +148,7 @@ export default class Films {
     this._filtersComponent = new SiteNavigationView(filters);
 
     this._filtersComponent.setFilterChangeHandler(this._handleFilterChange);
-    render(this._siteMainElement, this._filtersComponent, RenderPosition.BEFOREEND);
+    render(this._siteMainElement, this._filtersComponent, RenderPosition.AFTERBEGIN);
   }
 
   _renderSort() {
@@ -190,6 +199,7 @@ export default class Films {
   }
 
   _renderFilms() {
+    // this._filmsModel._films = Mock.loadFilms();  // Если это разблокировать, то работает обновление количества комментариев, но перестают работать переключатели
     const siteBody = document.querySelector(`body`);
     this._siteMainElement = siteBody.querySelector(`.main`);
 

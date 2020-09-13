@@ -6,7 +6,7 @@ import FilmsModel from "./model/films.js";
 import {render, RenderPosition} from "./utils/render.js";
 import {Mock} from "./mock.js";
 
-const films = Mock.load();
+const films = Mock.loadFilms();
 
 const filmsModel = new FilmsModel();
 filmsModel.setFilms(films);
