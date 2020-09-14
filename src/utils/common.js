@@ -4,6 +4,8 @@ export const getRandomItem = (array) => array[Math.floor(Math.random() * array.l
 
 export const getRandomNumber = (min = 0, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+export const getRandomUniqueArray = (length = 5) => [...new Set(Array.from({length}, getRandomNumber))];
+
 const getRandomSorting = () => Math.random() - 0.5;
 
 export const getRandomSet = (items, num = 3) =>
@@ -22,3 +24,5 @@ export const updateItem = (items, update) => {
     ...items.slice(index + 1)
   ];
 };
+
+export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);

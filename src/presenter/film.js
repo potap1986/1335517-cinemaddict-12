@@ -1,13 +1,14 @@
 import FilmElementView from "../view/film-element.js";
 import FilmDetailsView from "../view/film-details.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
-
+import {UserAction, UpdateType, activeID} from "../const.js";
+import CommentsModel from "../model/comments.js";
+import {Mock} from "../mock.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
   OPEN_POPUP: `OPEN_POPUP`
 };
-
 export default class Film {
   constructor(filmContainer, changeData, changePopup) {
     this._filmContainer = filmContainer;
@@ -23,6 +24,7 @@ export default class Film {
     this._escKeyDownHandler = this._escKeyDownHandler.bind(this);
     this._handleWatchlistClick = this._handleWatchlistClick.bind(this);
     this._handleWatchedClick = this._handleWatchedClick.bind(this);
+    // this._handleCommentChange = this._handleCommentChange.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     const siteBody = document.querySelector(`body`);
     this._siteFooterElement = siteBody.querySelector(`.footer`);
@@ -30,22 +32,29 @@ export default class Film {
 
   init(film) {
     this._film = film;
+    this._filmId = film.id;
+    const commentsModel = new CommentsModel();
+    commentsModel.setComments(Mock.loadComments(film.id));
 
     const prevFilmComponent = this._filmComponent;
     const prevFilmPopupComponent = this._filmPopupComponent;
 
-    this._filmComponent = new FilmElementView(film);
-    this._filmPopupComponent = new FilmDetailsView(film);
+    this._filmComponent = new FilmElementView(film, this._changeData);
+    this._filmPopupComponent = new FilmDetailsView(film, commentsModel);
 
-
-    this._filmComponent.setPosterClickHandler(this._openPopup);
-    this._filmComponent.setTitleClickHandler(this._openPopup);
     if (this._mode === Mode.DEFAULT) {
+      this._filmComponent.setPosterClickHandler(this._openPopup);
+      this._filmComponent.setTitleClickHandler(this._openPopup);
       this._filmComponent.setCommentsClickHandler(this._openPopup);
     }
+
     this._filmComponent.setWatchlistClickHandler(this._handleWatchlistClick);
     this._filmComponent.setWatchedClickHandler(this._handleWatchedClick);
     this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
+
+    if (activeID.id === this._filmId) {
+      this._openPopup();
+    }
 
     if (prevFilmComponent === null || prevFilmPopupComponent === null) {
       render(this._filmContainer, this._filmComponent, RenderPosition.BEFOREEND);
@@ -66,7 +75,10 @@ export default class Film {
 
   destroy() {
     remove(this._filmComponent);
-    remove(this._filmPopupComponent);
+    if (this._mode !== Mode.DEFAULT) {
+      remove(this._filmPopupComponent);
+      activeID.id = this._filmId;
+    }
   }
 
   _openPopup() {
@@ -75,6 +87,7 @@ export default class Film {
     this._filmPopupComponent.setWatchlistPopupClickHandler(this._handleWatchlistClick);
     this._filmPopupComponent.setWatchedPopupClickHandler(this._handleWatchedClick);
     this._filmPopupComponent.setFavoritePopupClickHandler(this._handleFavoriteClick);
+    // this._filmPopupComponent.changeComment(this._handleCommentChange);
     this._changePopup();
     this._mode = Mode.OPEN_POPUP;
 
@@ -88,53 +101,82 @@ export default class Film {
   }
 
   _closePopup() {
+    const state = {
+      isFavorite: this._filmPopupComponent.getElement().querySelector(`#favorite`).checked,
+      isWatched: this._filmPopupComponent.getElement().querySelector(`#watched`).checked,
+      inWatchlist: this._filmPopupComponent.getElement().querySelector(`#watchlist`).checked,
+    };
+
     this._siteFooterElement.removeChild(this._filmPopupComponent.getElement());
     document.removeEventListener(`keydown`, this._escKeyDownHandler);
     this._mode = Mode.DEFAULT;
-    this._changeData(this._film);
+    this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign(
+            {},
+            this._film,
+            state
+        )
+    );
+    Mock.putMovie(Object.assign({}, {id: this._film.id}, state));
   }
 
   _escKeyDownHandler(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
+      activeID.id = 0;
       this._closePopup();
     }
   }
 
   _handleWatchlistClick() {
-    this._changeData(
-        Object.assign(
-            {},
-            this._film,
-            {
-              inWatchlist: !this._film.inWatchlist
-            }
-        )
-    );
+    // this._changeData(
+    //     UserAction.UPDATE_FILM,
+    //     UpdateType.PATCH,
+    //     Object.assign(
+    //         {},
+    //         this._film,
+    //         {
+    //           inWatchlist: !this._film.inWatchlist
+    //         }
+    //     )
+    // );
   }
 
   _handleWatchedClick() {
-    this._changeData(
-        Object.assign(
-            {},
-            this._film,
-            {
-              isWatched: !this._film.isWatched
-            }
-        )
-    );
+    // this._changeData(
+    //     UserAction.UPDATE_FILM,
+    //     UpdateType.MINOR,
+    //     Object.assign(
+    //         {},
+    //         this._film,
+    //         {
+    //           isWatched: !this._film.isWatched
+    //         }
+    //     )
+    // );
   }
 
   _handleFavoriteClick() {
-    this._changeData(
-        Object.assign(
-            {},
-            this._film,
-            {
-              isFavorite: !this._film.isFavorite
-            }
-        )
-    );
+    // this._changeData(
+    //     UserAction.UPDATE_FILM,
+    //     UpdateType.MINOR,
+    //     Object.assign(
+    //         {},
+    //         this._film,
+    //         {
+    //           isFavorite: !this._film.isFavorite
+    //         }
+    //     )
+    // );
   }
+
+  // _handleCommentChange() {
+  //   this._changeData(
+  //       UserAction.UPDATE_FILM,
+  //       UpdateType.MINOR
+  //   );
+  // }
 }

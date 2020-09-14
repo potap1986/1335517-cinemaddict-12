@@ -1,5 +1,8 @@
 import {getDurationString, getCommentString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
+import {UserAction, UpdateType} from "../const.js";
+import {Mock} from '../mock.js';
+
 
 const createFilmElementTemplate = (film) => {
   const {poster, title, rating, duration, releaseDate, genres, description, comments, isFavorite, isWatched, inWatchlist} = film;
@@ -22,9 +25,10 @@ const createFilmElementTemplate = (film) => {
     </article>`;
 };
 export default class FilmElement extends AbstractView {
-  constructor(film) {
+  constructor(film, onDataChange) {
     super();
     this._film = film;
+    this._onDataChange = onDataChange;
     this._posterClickHandler = this._posterClickHandler.bind(this);
     this._titleClickHandler = this._titleClickHandler.bind(this);
     this._commentsClickHandler = this._commentsClickHandler.bind(this);
@@ -62,19 +66,65 @@ export default class FilmElement extends AbstractView {
     this._callback.commentsClick();
   }
 
+  _toggleActiveClass(btn) {
+    btn.classList.contains(`film-card__controls-item--active`) ? btn.classList.remove(`film-card__controls-item--active`) : btn.classList.add(`film-card__controls-item--active`);
+  }
+
   _watchlistClickHandler(evt) {
     evt.preventDefault();
+    this._onDataChange(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign(
+            {},
+            this._film,
+            {
+              inWatchlist: !this._film.inWatchlist
+            }
+        )
+    );
+
+    Mock.putMovie(Object.assign({}, {id: this._film.id, inWatchlist: !this._film.inWatchlist}));
     this._callback.watchlistClick();
+    this._toggleActiveClass(evt.target);
   }
 
   _watchedClickHandler(evt) {
     evt.preventDefault();
+    this._onDataChange(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign(
+            {},
+            this._film,
+            {
+              isWatched: !this._film.isWatched
+            }
+        )
+    );
+
+    Mock.putMovie(Object.assign({}, {id: this._film.id, isWatched: !this._film.isWatched}));
     this._callback.watchedClick();
+    this._toggleActiveClass(evt.target);
   }
 
   _favoriteClickHandler(evt) {
     evt.preventDefault();
+    this._onDataChange(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign(
+            {},
+            this._film,
+            {
+              isFavorite: !this._film.isFavorite
+            }
+        )
+    );
+
+    Mock.putMovie(Object.assign({}, {id: this._film.id, isFavorite: !this._film.isFavorite}));
     this._callback.favoriteClick();
+    this._toggleActiveClass(evt.target);
   }
 
   setCommentsClickHandler(callback) {
