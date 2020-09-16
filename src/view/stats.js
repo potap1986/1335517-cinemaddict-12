@@ -189,8 +189,6 @@ export default class StatsElement extends SmartView {
           break;
       }
 
-      console.log(update);
-
       this.updateData(update);
       this._setChart();
     }
