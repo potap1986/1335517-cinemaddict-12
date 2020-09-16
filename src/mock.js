@@ -99,26 +99,31 @@ const getComment = () => ({
 
 const getComments = (num = 5) => Array.from({length: num}, getComment);
 
-const getFilm = () => ({
-  id: generateId(),
-  title: getRandomItem(filmTitles),
-  director: getRandomItem(PEOPLE),
-  writers: getRandomSet(PEOPLE, getRandomNumber(1, 3)),
-  actors: getRandomSet(PEOPLE, getRandomNumber(1, 3)),
-  poster: getRandomItem(filmPosters),
-  rating: getRandomNumber(10, 100) / 10,
-  releaseDate: Date.now() - getRandomNumber(Time.MONTH, 10 * Time.YEAR),
-  country: getRandomItem(COUNTRIES),
-  duration: getRandomNumber(10, 180),
-  genres: getRandomSet(GENRES, getRandomNumber(1, 3)),
-  ageLimit: getRandomItem(AGE_LIMITS),
-  description: getRandomSet(sentences, getRandomNumber(1, 5)).join(` `),
-  isFavorite: getRandomBool(),
-  isWatched: getRandomBool(),
-  inWatchlist: getRandomBool(),
-  // comments: getComments(getRandomNumber(0, 5)),
-  comments: getRandomUniqueArray(getRandomNumber(0, 5)),
-});
+const getFilm = () => {
+  const isWatchedFilm = getRandomBool();
+  const watchingFilmDate = isWatchedFilm ? Date.now() - getRandomNumber(0, Time.MONTH) : ``;
+  return {
+    id: generateId(),
+    title: getRandomItem(filmTitles),
+    director: getRandomItem(PEOPLE),
+    writers: getRandomSet(PEOPLE, getRandomNumber(1, 3)),
+    actors: getRandomSet(PEOPLE, getRandomNumber(1, 3)),
+    poster: getRandomItem(filmPosters),
+    rating: getRandomNumber(10, 100) / 10,
+    releaseDate: Date.now() - getRandomNumber(Time.MONTH, 10 * Time.YEAR),
+    country: getRandomItem(COUNTRIES),
+    duration: getRandomNumber(10, 180),
+    genres: getRandomSet(GENRES, getRandomNumber(1, 3)),
+    ageLimit: getRandomItem(AGE_LIMITS),
+    description: getRandomSet(sentences, getRandomNumber(1, 5)).join(` `),
+    isFavorite: getRandomBool(),
+    isWatched: getRandomBool(),
+    inWatchlist: isWatchedFilm,
+    watchingDate: watchingFilmDate,
+    // comments: getComments(getRandomNumber(0, 5)),
+    comments: getRandomUniqueArray(getRandomNumber(0, 5)),
+  };
+};
 
 const getFilms = (num = FILMS_NUM) => Array.from({length: num}, getFilm);
 

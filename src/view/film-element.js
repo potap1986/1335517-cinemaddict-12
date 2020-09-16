@@ -67,7 +67,7 @@ export default class FilmElement extends AbstractView {
   }
 
   _toggleActiveClass(btn) {
-    btn.classList.contains(`film-card__controls-item--active`) ? btn.classList.remove(`film-card__controls-item--active`) : btn.classList.add(`film-card__controls-item--active`);
+    return btn.classList.contains(`film-card__controls-item--active`) ? btn.classList.remove(`film-card__controls-item--active`) : btn.classList.add(`film-card__controls-item--active`);
   }
 
   _watchlistClickHandler(evt) {
