@@ -1,7 +1,7 @@
 import FilmElementView from "../view/film-element.js";
 import FilmDetailsView from "../view/film-details.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
-import {UserAction, UpdateType, activeID} from "../const.js";
+import {UserAction, UpdateType, activeId} from "../const.js";
 import CommentsModel from "../model/comments.js";
 import {Mock} from "../mock.js";
 
@@ -52,7 +52,7 @@ export default class Film {
     this._filmComponent.setWatchedClickHandler(this._handleWatchedClick);
     this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
 
-    if (activeID.id === this._filmId) {
+    if (activeId.id === this._filmId) {
       this._openPopup();
     }
 
@@ -77,7 +77,7 @@ export default class Film {
     remove(this._filmComponent);
     if (this._mode !== Mode.DEFAULT) {
       remove(this._filmPopupComponent);
-      activeID.id = this._filmId;
+      activeId.id = this._filmId;
     }
   }
 
@@ -126,7 +126,7 @@ export default class Film {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
-      activeID.id = 0;
+      activeId.id = 0;
       this._closePopup();
     }
   }

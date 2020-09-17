@@ -2,8 +2,8 @@ import {getDurationString, formatCommentDateString, formatDateString} from '../u
 import AbstractView from "./abstract.js";
 import he from "he";
 import {generateId} from "../utils/common.js";
-import {renderTemplate, RenderPosition} from "../utils/render.js";
-import {UpdateType, activeID /* , FilmsExtraTitleID*/} from "../const.js";
+// import {renderTemplate, RenderPosition} from "../utils/render.js";
+import {UpdateType, activeId /* , FilmsExtraTitleId*/} from "../const.js";
 import {Mock} from '../mock';
 
 const createCommentsListTemplate = (comments) => {
@@ -240,7 +240,7 @@ export default class FilmDetails extends AbstractView {
 
   _closeClickHandler(evt) {
     evt.preventDefault();
-    activeID.id = 0;
+    activeId.id = 0;
     this._callback.closeClick();
   }
 

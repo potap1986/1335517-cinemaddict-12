@@ -4,11 +4,21 @@ export const FILMS_COUNT = 5;
 
 export const EXTRA_FILMS_COUNT = 2;
 
+export const BAR_HEIGHT = 50;
+
 export const Time = {
   DAY: 24 * 60 * 60 * 1000,
   WEEK: 7 * 24 * 60 * 60 * 1000,
   MONTH: 30 * 24 * 60 * 60 * 1000,
   YEAR: 365 * 24 * 60 * 60 * 1000,
+};
+
+export const StatisticPeriod = {
+  ALL_TIME: `all-time`,
+  TODAY: `today`,
+  WEEK: `week`,
+  MONTH: `month`,
+  YEAR: `year`
 };
 
 export const Month = {
@@ -32,14 +42,14 @@ export const SortType = {
   BY_RATING: `by-rating`
 };
 
-export const FilterID = {
+export const FilterId = {
   all: `All movies`,
   inWatchlist: `Watchlist`,
   isWatched: `History`,
   isFavorite: `Favorites`,
 };
 
-export const FilmsExtraTitleID = {
+export const FilmsExtraTitleId = {
   TOP_RATED: `Top rated`,
   MOST_COMMENTED: `Most commented`,
 };
@@ -57,6 +67,6 @@ export const UpdateType = {
   FILTERS: `FILTERS`
 };
 
-export const activeID = {
+export const activeId = {
   id: 0,
 };

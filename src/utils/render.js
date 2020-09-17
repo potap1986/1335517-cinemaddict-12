@@ -1,5 +1,5 @@
 import Abstract from "../view/abstract.js";
-import {FilmsExtraTitleID, EXTRA_FILMS_COUNT} from "../const.js";
+import {FilmsExtraTitleId, EXTRA_FILMS_COUNT} from "../const.js";
 
 export const createElement = (template) => {
   const newElement = document.createElement(`div`);
@@ -73,9 +73,9 @@ export const remove = (component) => {
 
 export const getListFilms = (filmList, title) => {
   switch (title) {
-    case FilmsExtraTitleID.TOP_RATED:
+    case FilmsExtraTitleId.TOP_RATED:
       return filmList.slice().sort((a, b) => b.rating - a.rating).slice(0, EXTRA_FILMS_COUNT);
-    case FilmsExtraTitleID.MOST_COMMENTED:
+    case FilmsExtraTitleId.MOST_COMMENTED:
       return filmList.slice().sort((a, b) => b.comments.length - a.comments.length).slice(0, EXTRA_FILMS_COUNT);
   }
   return [];
