@@ -1,9 +1,7 @@
 import {getDurationString, formatCommentDateString, formatDateString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
 import he from "he";
-import {generateId} from "../utils/common.js";
 import {UpdateType, activeId /* , FilmsExtraTitleId*/} from "../const.js";
-// import {Mock} from '../mock';
 
 const createCommentsListTemplate = (comments) => {
   return `<h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
@@ -154,9 +152,10 @@ const createFilmDetailsTemplate = (film, comments) => {
   </section>`;
 };
 export default class FilmDetails extends AbstractView {
-  constructor(film, commentsModel) {
+  constructor(film, commentsModel, api) {
     super();
     this._film = film;
+    this._api = api;
     this._commentsModel = commentsModel;
     this._commentMode = null;
     this.changeComment = this.changeComment.bind(this);
@@ -195,9 +194,8 @@ export default class FilmDetails extends AbstractView {
           const commentId = evt.target.closest(`.film-details__comment`);
           const idIndex = Number(commentId.dataset.id);
           this._commentMode = `DELETE`;
-          // debugger;
           this.changeComment({id: idIndex});
-          // Mock.deleteComment(idIndex);
+          this._api.deleteComment(idIndex);
           this._updateComments(this._commentsModel._comments);
         })
       );
@@ -211,15 +209,19 @@ export default class FilmDetails extends AbstractView {
 
   _commentSubmit(emotion, comment) {
     const NewComment = {
-      id: generateId(),
-      author: `MyName`,
+      // id: generateId(),
+      // author: `MyName`,
+      comment: he.encode(comment.value),
       date: Date.now(),
       emotion: emotion.value,
-      comment: he.encode(comment.value),
     };
     this._commentMode = `ADD`;
+    this._api.addComment(this._film, NewComment)
+        .then((response) => {
+          console.log(response);
+          this._commentsModel.addComment(UpdateType.PATCH, NewComment);
+        });
     this.changeComment(NewComment);
-    // Mock.postComment(this._film.id, NewComment);
   }
 
   _commentSubmitHandler(evt) {

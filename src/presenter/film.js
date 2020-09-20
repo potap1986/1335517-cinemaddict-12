@@ -85,14 +85,13 @@ export default class Film {
     this._api.getComments(this._film)
       .then((comments) => {
         this._commentsModel.setComments(comments);
-        this._filmPopupComponent = new FilmDetailsView(this._film, this._commentsModel);
+        this._filmPopupComponent = new FilmDetailsView(this._film, this._commentsModel, this._api);
         this._siteFooterElement.appendChild(this._filmPopupComponent.getElement());
         this._filmPopupComponent.setCloseClickHandler(this._closePopup);
         this._filmPopupComponent.setWatchlistPopupClickHandler(this._handleWatchlistClick);
         this._filmPopupComponent.setWatchedPopupClickHandler(this._handleWatchedClick);
         this._filmPopupComponent.setFavoritePopupClickHandler(this._handleFavoriteClick);
       });
-
     // this._filmPopupComponent.changeComment(this._handleCommentChange);
     this._changePopup();
     this._mode = Mode.OPEN_POPUP;

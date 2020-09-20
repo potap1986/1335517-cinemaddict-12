@@ -29,9 +29,9 @@ export default class Api {
       .then(Api.toJSON);
   }
 
-  deleteComment(comment) {
+  deleteComment(id) {
     return this._load({
-      url: `comments/${comment.id}`,
+      url: `comments/${id}`,
       method: Method.DELETE
     });
   }

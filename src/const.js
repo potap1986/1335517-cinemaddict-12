@@ -61,3 +61,7 @@ export const UpdateType = {
 export const activeId = {
   id: 0,
 };
+export const State = {
+  SAVING: `SAVING`,
+  DELETING: `DELETING`
+};

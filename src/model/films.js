@@ -36,6 +36,7 @@ export default class Films extends Observer {
   }
 
   static adaptToClient(film) {
+    console.log(film);
     const adaptedFilm = Object.assign(
         {},
         film,
@@ -56,10 +57,9 @@ export default class Films extends Observer {
           isFavorite: film.user_details.favorite,
           isWatched: film.user_details.already_watched,
           watchingDate: film.user_details.watching_date !== null ? new Date(film.user_details.watching_date) : film.user_details.watching_date,
-          isWatchlist: film.user_details.watchlist,
+          inWatchlist: film.user_details.watchlist,
         }
     );
-
     delete adaptedFilm.film_info.title;
     delete adaptedFilm.film_info.alternative_title;
     delete adaptedFilm.film_info.poster;
@@ -109,7 +109,7 @@ export default class Films extends Observer {
             "favorite": film.isFavorite,
             "already_watched": film.isWatched,
             "watching_date": film.watchingDate instanceof Date ? film.watchingDate.toISOString() : null,
-            "watchlist": film.isWatchlist
+            "watchlist": film.inWatchlist
           }
         }
     );
@@ -130,7 +130,7 @@ export default class Films extends Observer {
     delete adaptedFilm.isFavorite;
     delete adaptedFilm.isWatched;
     delete adaptedFilm.watchingDate;
-    delete adaptedFilm.isWatchlist;
+    delete adaptedFilm.inWatchlist;
 
     return adaptedFilm;
   }
