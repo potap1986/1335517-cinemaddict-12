@@ -10,12 +10,15 @@ import StatsView from "../view/stats.js";
 import FilmPresenter from "./film.js";
 import {render, RenderPosition, remove /* , getListFilms*/} from "../utils/render.js";
 import {SortType, UpdateType, UserAction, FILMS_COUNT, FilterId /* , FilmsExtraTitleId*/} from "../const.js";
+import LoadingView from "../view/loading.js";
 // import {Mock} from "../mock.js";
 export default class Films {
-  constructor(filmsContainer, filmsModel) {
+  constructor(filmsContainer, filmsModel, api) {
     this._filmsModel = filmsModel;
     this._filmsContainer = filmsContainer;
+    this._api = api;
     this._filmPresenter = {};
+    this._isLoading = true;
     this._filmExtraPresenter = {};
     this._filteredFilms = [];
     this._currentSortType = SortType.DEFAULT;
@@ -24,9 +27,8 @@ export default class Films {
     this._sortComponent = null;
     this._showMoreButtonComponent = null;
     this._statsOpen = true;
-
     this._noFilmElementComponent = new NoFilmElementView();
-    this._filmsComponent = new FilmsView(this._filmsModel.getFilmsCount());
+    this._loadingComponent = new LoadingView();
     // this._filterModel = new FilterModel();
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -63,7 +65,9 @@ export default class Films {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_FILM:
-        this._filmsModel.updateFilm(updateType, update);
+        this._api.updateFilm(update).then((response) => {
+          this._filmsModel.updateFilm(updateType, response);
+        });
         break;
     }
   }
@@ -89,6 +93,12 @@ export default class Films {
       case UpdateType.FILTERS:
         this._updateFilters();
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+
+        this._clearFilms();
+        this._renderFilms();
+        break;
     }
   }
 
@@ -108,7 +118,7 @@ export default class Films {
   }
 
   _handleFilterChange(filter) {
-    if (this._currentFilter === filter) {
+    if (this._currentFilter === filter && !this._statsOpen) {
       return;
     }
     this._currentFilter = filter;
@@ -175,7 +185,7 @@ export default class Films {
 
     this._sortComponent = new SortView(this._currentSortType);
     this._sortComponent.setSortTypeChangeHandler(this._handleSortTypeChange);
-    render(this._filmsComponent, this._sortComponent, RenderPosition.AFTERBEGIN);
+    render(this._siteMainElement, this._sortComponent, RenderPosition.BEFOREEND);
   }
 
   _renderStats() {
@@ -207,9 +217,10 @@ export default class Films {
 
     remove(this._filtersComponent);
     remove(this._statsComponent);
-    remove(this._filmsComponent);
     remove(this._sortComponent);
+    remove(this._filmsComponent);
     remove(this._noFilmElementComponent);
+    remove(this._loadingComponent);
     remove(this._showMoreButtonComponent);
 
     if (resetRenderedFilmCount) {
@@ -228,7 +239,10 @@ export default class Films {
     const siteBody = document.querySelector(`body`);
     this._siteMainElement = siteBody.querySelector(`.main`);
 
+
     this._filterFilms(this._currentFilter);
+
+    this._filmsComponent = new FilmsView(this._getFilms().length);
 
     this._renderFilters();
     if (this._statsOpen) {
@@ -236,11 +250,17 @@ export default class Films {
       return;
     }
 
+
     this._renderSort();
     render(this._filmsContainer, this._filmsComponent, RenderPosition.BEFOREEND);
 
     this._filmsElement = this._siteMainElement.querySelector(`.films`);
     this._filmsList = this._siteMainElement.querySelector(`.films-list`);
+
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
 
     if (this._getFilms().length === 0) {
       this._renderNoFilmElement();
@@ -258,6 +278,10 @@ export default class Films {
     this._shownFilms = films.slice(0, this._filmsCount);
 
     this._shownFilms.forEach((film) => this._renderFilm(this._filmsListElement, film));
+  }
+
+  _renderLoading() {
+    render(this._filmsList, this._loadingComponent, RenderPosition.AFTERBEGIN);
   }
 
   _renderNoFilmElement() {

@@ -2,21 +2,20 @@ import {getDurationString, formatCommentDateString, formatDateString} from '../u
 import AbstractView from "./abstract.js";
 import he from "he";
 import {generateId} from "../utils/common.js";
-// import {renderTemplate, RenderPosition} from "../utils/render.js";
 import {UpdateType, activeId /* , FilmsExtraTitleId*/} from "../const.js";
-import {Mock} from '../mock';
+// import {Mock} from '../mock';
 
 const createCommentsListTemplate = (comments) => {
   return `<h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
   <ul class="film-details__comments-list">
-    ${comments.map(({author, date, emotion, text, id}) =>
+    ${comments.map(({author, date, emotion, comment, id}) =>
     `<li class="film-details__comment" data-id="${id}">
       <span class="film-details__comment-emoji">
         <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
       </span>
       <div>
-        <p class="film-details__comment-text">${text}</p>
+        <p class="film-details__comment-text">${comment}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
           <span class="film-details__comment-day">${formatCommentDateString(date)}</span>
@@ -75,7 +74,7 @@ const createFilmDetailsTemplate = (film, comments) => {
         </div>
         <div class="film-details__info-wrap">
           <div class="film-details__poster">
-            <img class="film-details__poster-img" src="${poster}" alt="${title}">
+            <img class="film-details__poster-img" src="./${poster}" alt="${title}">
 
             <p class="film-details__age">${ageLimit}+</p>
           </div>
@@ -198,7 +197,7 @@ export default class FilmDetails extends AbstractView {
           this._commentMode = `DELETE`;
           // debugger;
           this.changeComment({id: idIndex});
-          Mock.deleteComment(idIndex);
+          // Mock.deleteComment(idIndex);
           this._updateComments(this._commentsModel._comments);
         })
       );
@@ -210,17 +209,17 @@ export default class FilmDetails extends AbstractView {
     currentEmotion.innerHTML = `<img src="images/emoji/${value}.png" width="55" height="55" alt="emoji-${value}">`;
   }
 
-  _commentSubmit(emotion, text) {
+  _commentSubmit(emotion, comment) {
     const NewComment = {
       id: generateId(),
       author: `MyName`,
       date: Date.now(),
       emotion: emotion.value,
-      text: he.encode(text.value),
+      comment: he.encode(comment.value),
     };
     this._commentMode = `ADD`;
     this.changeComment(NewComment);
-    Mock.postComment(this._film.id, NewComment);
+    // Mock.postComment(this._film.id, NewComment);
   }
 
   _commentSubmitHandler(evt) {
@@ -230,9 +229,9 @@ export default class FilmDetails extends AbstractView {
     if (isEnter && (isControl || isCmd)) {
       evt.preventDefault();
       const emotion = this._element.querySelector(`input[type="radio"]:checked`);
-      const text = this._element.querySelector(`textarea`);
-      if (emotion && text.value.length > 0) {
-        this._commentSubmit(emotion, text);
+      const comment = this._element.querySelector(`textarea`);
+      if (emotion && comment.value.length > 0) {
+        this._commentSubmit(emotion, comment);
         this._updateComments(this._commentsModel._comments);
       }
     }

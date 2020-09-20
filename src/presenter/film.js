@@ -1,9 +1,10 @@
 import FilmElementView from "../view/film-element.js";
 import FilmDetailsView from "../view/film-details.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
-import {UserAction, UpdateType, activeId} from "../const.js";
+import {AUTHORIZATION, END_POINT, UserAction, UpdateType, activeId} from "../const.js";
 import CommentsModel from "../model/comments.js";
-import {Mock} from "../mock.js";
+import Api from '../api.js';
+// import {Mock} from "../mock.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -33,14 +34,12 @@ export default class Film {
   init(film) {
     this._film = film;
     this._filmId = film.id;
-    const commentsModel = new CommentsModel();
-    commentsModel.setComments(Mock.loadComments(film.id));
+    this._commentsModel = new CommentsModel();
 
+    this._filmComponent = new FilmElementView(film, this._changeData);
     const prevFilmComponent = this._filmComponent;
     const prevFilmPopupComponent = this._filmPopupComponent;
 
-    this._filmComponent = new FilmElementView(film, this._changeData);
-    this._filmPopupComponent = new FilmDetailsView(film, commentsModel);
 
     if (this._mode === Mode.DEFAULT) {
       this._filmComponent.setPosterClickHandler(this._openPopup);
@@ -82,11 +81,18 @@ export default class Film {
   }
 
   _openPopup() {
-    this._siteFooterElement.appendChild(this._filmPopupComponent.getElement());
-    this._filmPopupComponent.setCloseClickHandler(this._closePopup);
-    this._filmPopupComponent.setWatchlistPopupClickHandler(this._handleWatchlistClick);
-    this._filmPopupComponent.setWatchedPopupClickHandler(this._handleWatchedClick);
-    this._filmPopupComponent.setFavoritePopupClickHandler(this._handleFavoriteClick);
+    this._api = new Api(END_POINT, AUTHORIZATION);
+    this._api.getComments(this._film)
+      .then((comments) => {
+        this._commentsModel.setComments(comments);
+        this._filmPopupComponent = new FilmDetailsView(this._film, this._commentsModel);
+        this._siteFooterElement.appendChild(this._filmPopupComponent.getElement());
+        this._filmPopupComponent.setCloseClickHandler(this._closePopup);
+        this._filmPopupComponent.setWatchlistPopupClickHandler(this._handleWatchlistClick);
+        this._filmPopupComponent.setWatchedPopupClickHandler(this._handleWatchedClick);
+        this._filmPopupComponent.setFavoritePopupClickHandler(this._handleFavoriteClick);
+      });
+
     // this._filmPopupComponent.changeComment(this._handleCommentChange);
     this._changePopup();
     this._mode = Mode.OPEN_POPUP;
@@ -119,7 +125,7 @@ export default class Film {
             state
         )
     );
-    Mock.putMovie(Object.assign({}, {id: this._film.id}, state));
+    // Mock.putMovie(Object.assign({}, {id: this._film.id}, state)); ////////////////////////
   }
 
   _escKeyDownHandler(evt) {

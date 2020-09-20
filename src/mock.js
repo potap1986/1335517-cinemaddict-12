@@ -92,7 +92,7 @@ const AGE_LIMITS = [14, 16, 18, 21];
 const getComment = () => ({
   id: generateId(),
   emotion: getRandomItem(EMOTIONS),
-  text: getRandomItem(sentences),
+  comment: getRandomItem(sentences),
   author: getRandomItem(PEOPLE),
   date: Date.now() - getRandomNumber(0, Time.MONTH),
 });
@@ -167,12 +167,8 @@ const postComment = (filmId, comment) => {
 };
 
 const putMovie = (movie) => {
-  console.log(films);
   const filmIndex = films.findIndex((film) => +film.id === +movie.id);
-  console.log(movie);
-  console.log(films[filmIndex]);
   Object.assign(films[filmIndex], movie);
-  console.log(films);
 };
 
 export const Mock = {
