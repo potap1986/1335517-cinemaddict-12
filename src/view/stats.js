@@ -1,9 +1,9 @@
-import SmartView from './smart';
+import SmartView from './smart.js';
 import moment from 'moment';
 import Chart from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import {getCurrentDate, getWatchedFilmsCount, getProfileRating, getFilmsDuration, getTopGenre, getAllGenres} from '../utils/common';
-import {StatisticPeriod, BAR_HEIGHT} from '../const';
+import {StatisticPeriod, BAR_HEIGHT} from '../const.js';
 
 const renderGenreChart = (statisticCtx, films) => {
   const genres = Object.keys(getAllGenres(films));
@@ -190,7 +190,6 @@ export default class StatsElement extends SmartView {
       }
 
       this.updateData(update);
-      this._setChart();
     }
   }
 

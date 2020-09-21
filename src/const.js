@@ -1,5 +1,4 @@
 export const FILMS_COUNT = 5;
-export const EXTRA_FILMS_COUNT = 2;
 export const BAR_HEIGHT = 50;
 export const AUTHORIZATION = `Basic11 h2k24hk5hosa2j`;
 export const END_POINT = `https://12.ecmascript.pages.academy/cinemaddict`;
@@ -41,10 +40,6 @@ export const FilterId = {
   inWatchlist: `Watchlist`,
   isWatched: `History`,
   isFavorite: `Favorites`,
-};
-export const FilmsExtraTitleId = {
-  TOP_RATED: `Top rated`,
-  MOST_COMMENTED: `Most commented`,
 };
 export const UserAction = {
   UPDATE_FILM: `UPDATE_FILM`,

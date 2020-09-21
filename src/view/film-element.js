@@ -1,8 +1,6 @@
 import {getDurationString, getCommentString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
 import {UserAction, UpdateType} from "../const.js";
-// import {Mock} from '../mock.js';
-
 
 const createFilmElementTemplate = (film) => {
   const {poster, title, rating, duration, releaseDate, genres, description, comments, isFavorite, isWatched, inWatchlist} = film;
@@ -84,7 +82,6 @@ export default class FilmElement extends AbstractView {
         )
     );
 
-    // Mock.putMovie(Object.assign({}, {id: this._film.id, inWatchlist: !this._film.inWatchlist}));
     this._callback.watchlistClick();
     this._toggleActiveClass(evt.target);
   }
@@ -103,7 +100,6 @@ export default class FilmElement extends AbstractView {
         )
     );
 
-    // Mock.putMovie(Object.assign({}, {id: this._film.id, isWatched: !this._film.isWatched}));
     this._callback.watchedClick();
     this._toggleActiveClass(evt.target);
   }
@@ -122,7 +118,6 @@ export default class FilmElement extends AbstractView {
         )
     );
 
-    // Mock.putMovie(Object.assign({}, {id: this._film.id, isFavorite: !this._film.isFavorite}));
     this._callback.favoriteClick();
     this._toggleActiveClass(evt.target);
   }

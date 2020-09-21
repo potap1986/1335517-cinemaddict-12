@@ -1,7 +1,8 @@
 import {getDurationString, formatCommentDateString, formatDateString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
 import he from "he";
-import {UpdateType, activeId /* , FilmsExtraTitleId*/} from "../const.js";
+import {UpdateType, activeId} from "../const.js";
+import {shakeEffect} from '../utils/common.js';
 
 const createCommentsListTemplate = (comments) => {
   return `<h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
@@ -168,8 +169,8 @@ export default class FilmDetails extends AbstractView {
 
   init() {
     this.setCommentDeleteClickHandler();
-    const commentInput = this._element.querySelector(`.film-details__comment-input`);
-    commentInput.addEventListener(`keydown`, this._commentSubmitHandler);
+    this._commentInput = this._element.querySelector(`.film-details__comment-input`);
+    this._commentInput.addEventListener(`keydown`, this._commentSubmitHandler);
     this._element.querySelectorAll(`.film-details__emoji-item`).forEach((item) => {
       item.addEventListener(`click`, this._emotionsHandler);
     });
@@ -192,11 +193,19 @@ export default class FilmDetails extends AbstractView {
         deleteButton.addEventListener(`click`, (evt) => {
           evt.preventDefault();
           const commentId = evt.target.closest(`.film-details__comment`);
+          evt.target.disabled = true;
+          evt.target.innerHTML = `Deleting…`;
           const idIndex = Number(commentId.dataset.id);
           this._commentMode = `DELETE`;
-          this.changeComment({id: idIndex});
-          this._api.deleteComment(idIndex);
-          this._updateComments(this._commentsModel._comments);
+          this._api.deleteComment(idIndex)
+            .then(() => {
+              this.changeComment({id: idIndex});
+            })
+            .catch(() => {
+              shakeEffect(evt.target);
+              evt.target.disabled = false;
+              evt.target.innerHTML = `Delete`;
+            });
         })
       );
   }
@@ -209,19 +218,23 @@ export default class FilmDetails extends AbstractView {
 
   _commentSubmit(emotion, comment) {
     const NewComment = {
-      // id: generateId(),
-      // author: `MyName`,
       comment: he.encode(comment.value),
-      date: Date.now(),
+      date: new Date().toISOString(),
       emotion: emotion.value,
     };
+
+    this._commentInput.disabled = true;
+    shakeEffect(this._element);
+
     this._commentMode = `ADD`;
     this._api.addComment(this._film, NewComment)
-        .then((response) => {
-          console.log(response);
-          this._commentsModel.addComment(UpdateType.PATCH, NewComment);
-        });
-    this.changeComment(NewComment);
+      .then((response) => {
+        this.changeComment(response.comments);
+      })
+      .catch(() => {
+        shakeEffect(this._element);
+        this._commentInput.disabled = false;
+      });
   }
 
   _commentSubmitHandler(evt) {
@@ -234,7 +247,6 @@ export default class FilmDetails extends AbstractView {
       const comment = this._element.querySelector(`textarea`);
       if (emotion && comment.value.length > 0) {
         this._commentSubmit(emotion, comment);
-        this._updateComments(this._commentsModel._comments);
       }
     }
   }
@@ -254,25 +266,12 @@ export default class FilmDetails extends AbstractView {
     switch (this._commentMode) {
       case `DELETE`:
         this._commentsModel.delete(UpdateType.MINOR, comment);
+        this._updateComments(this._commentsModel._comments);
         break;
       case `ADD`:
         this._commentsModel.add(UpdateType.MINOR, comment);
+        this._updateComments(this._commentsModel._comments);
         break;
     }
-  }
-
-  setWatchlistPopupClickHandler(callback) {
-    this._callback.watchlistClick = callback;
-    this.getElement().querySelector(`.film-details__control-label--watchlist`).addEventListener(`click`, callback);
-  }
-
-  setWatchedPopupClickHandler(callback) {
-    this._callback.watchedClick = callback;
-    this.getElement().querySelector(`.film-details__control-label--watched`).addEventListener(`click`, callback);
-  }
-
-  setFavoritePopupClickHandler(callback) {
-    this._callback.favoriteClick = callback;
-    this.getElement().querySelector(`.film-details__control-label--favorite`).addEventListener(`click`, callback);
   }
 }

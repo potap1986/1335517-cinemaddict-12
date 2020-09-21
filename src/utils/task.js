@@ -17,9 +17,6 @@ export const getDateString = (date) => {
 };
 
 export const formatDateString = (date) => {
-  /* if (!(date instanceof Date)) {
-    return ``;
-  }*/
   return moment(date).format(`DD MMMM YYYY`);
 };
 
@@ -34,9 +31,6 @@ export const getCommentDateString = (date) => {
 };
 
 export const formatCommentDateString = (date) => {
-  /* if (!(date instanceof Date)) {
-    return ``;
-  }*/
   return moment(date).fromNow();
 };
 

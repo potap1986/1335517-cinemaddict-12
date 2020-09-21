@@ -22,7 +22,7 @@ export default class SiteNavigation extends AbstractView {
   }
 
   _filterChangeHandler(evt) {
-    if (evt.target.tagName !== `A`) {
+    if (evt.target.tagName !== `A` && evt.target.id === `stats`) {
       return;
     }
 

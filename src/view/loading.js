@@ -1,4 +1,3 @@
-
 import AbstractView from "./abstract.js";
 
 const createNoFilmTemplate = () => {
