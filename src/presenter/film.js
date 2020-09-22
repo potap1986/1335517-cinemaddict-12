@@ -1,14 +1,10 @@
 import FilmElementView from "../view/film-element.js";
 import FilmDetailsView from "../view/film-details.js";
 import {render, RenderPosition, replace, remove} from "../utils/render.js";
-import {AUTHORIZATION, END_POINT, UserAction, UpdateType, activeId} from "../const.js";
+import {AUTHORIZATION, END_POINT, UserAction, UpdateType, Mode} from "../const.js";
 import CommentsModel from "../model/comments.js";
+import {updateWatchingDate} from '../utils/common.js';
 import Api from '../api.js';
-
-const Mode = {
-  DEFAULT: `DEFAULT`,
-  OPEN_POPUP: `OPEN_POPUP`
-};
 export default class Film {
   constructor(filmContainer, changeData, changePopup) {
     this._filmContainer = filmContainer;
@@ -31,7 +27,7 @@ export default class Film {
     this._filmId = film.id;
     this._commentsModel = new CommentsModel();
 
-    this._filmComponent = new FilmElementView(film, this._changeData);
+    this._filmComponent = new FilmElementView(film);
     const prevFilmComponent = this._filmComponent;
     const prevFilmPopupComponent = this._filmPopupComponent;
 
@@ -48,10 +44,6 @@ export default class Film {
     this._filmComponent.setWatchlistClickHandler(this._handleWatchlistClick);
     this._filmComponent.setWatchedClickHandler(this._handleWatchedClick);
     this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
-
-    if (activeId.id === this._filmId) {
-      this._openPopup();
-    }
 
     if (prevFilmComponent === null || prevFilmPopupComponent === null) {
       render(this._filmContainer, this._filmComponent, RenderPosition.BEFOREEND);
@@ -74,7 +66,6 @@ export default class Film {
     remove(this._filmComponent);
     if (this._mode !== Mode.DEFAULT) {
       remove(this._filmPopupComponent);
-      activeId.id = this._filmId;
     }
   }
 
@@ -115,7 +106,8 @@ export default class Film {
         Object.assign(
             {},
             this._film,
-            state
+            state,
+            updateWatchingDate(this._film, state)
         )
     );
   }
@@ -142,6 +134,7 @@ export default class Film {
             {},
             this._film,
             {
+              watchingDate: !this._film.isWatched ? new Date() : null,
               isWatched: !this._film.isWatched
             }
         )
@@ -166,7 +159,6 @@ export default class Film {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
       document.removeEventListener(`keydown`, this._escKeyDownHandler);
-      activeId.id = 0;
       this._closePopup();
     }
   }

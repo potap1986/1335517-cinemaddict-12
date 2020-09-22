@@ -1,4 +1,4 @@
-import {SHAKE_ANIMATION_TIMEOUT} from '../const.js';
+import {SHAKE_ANIMATION_TIMEOUT, FilmsForRating} from '../const.js';
 
 export const shakeEffect = (element) => {
   element.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
@@ -7,25 +7,20 @@ export const shakeEffect = (element) => {
   }, SHAKE_ANIMATION_TIMEOUT);
 };
 
-export const updateItem = (items, update) => {
-  const index = items.findIndex((item) => item.id === update.id);
-
-  if (index === -1) {
-    return items;
+export const updateWatchingDate = (film, update) => {
+  if (film.isWatched !== update.isWatched) {
+    const obj = {watchingDate: update.isWatched ? new Date() : null};
+    return obj;
+  } else {
+    return {};
   }
-
-  return [
-    ...items.slice(0, index),
-    update,
-    ...items.slice(index + 1)
-  ];
 };
 
 export const getCurrentDate = () => {
   const currentDate = new Date();
   currentDate.setHours(23, 59, 59, 999);
 
-  return new Date(currentDate);
+  return currentDate;
 };
 
 export const getWatchedFilmsCount = (films) => {
@@ -36,11 +31,11 @@ export const getProfileRating = (films) => {
   const watchedFilmsCount = getWatchedFilmsCount(films);
 
   switch (true) {
-    case (watchedFilmsCount >= 1 && watchedFilmsCount <= 10):
+    case (watchedFilmsCount >= FilmsForRating.NOVICE.MIN && watchedFilmsCount <= FilmsForRating.NOVICE.MAX):
       return `novice`;
-    case (watchedFilmsCount >= 11 && watchedFilmsCount <= 20):
+    case (watchedFilmsCount >= FilmsForRating.FAN.MIN && watchedFilmsCount <= FilmsForRating.FAN.MAX):
       return `fan`;
-    case (watchedFilmsCount >= 21):
+    case (watchedFilmsCount >= FilmsForRating.MOVIE_BUFF.MIN):
       return `movie buff`;
     default:
       return ``;
@@ -56,11 +51,10 @@ export const getFilmsDuration = (films) => {
 export const getAllGenres = (films) => {
   const allGenres = [];
   films.map((film) => allGenres.push(film.genres));
-
-  const countObject = allGenres.flat().reduce((a, c) => {
-    a[c] = a[c] || 0;
-    a[c]++;
-    return a;
+  const countObject = allGenres.flat().reduce((array, genre) => {
+    array[genre] = array[genre] || 0;
+    array[genre]++;
+    return array;
   }, {});
 
   return countObject;

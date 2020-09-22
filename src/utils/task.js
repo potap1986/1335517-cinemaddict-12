@@ -1,4 +1,3 @@
-import {Month} from '../const.js';
 import moment from "moment";
 
 export const getDurationString = (duration) => {
@@ -7,27 +6,8 @@ export const getDurationString = (duration) => {
   return `${hours}h ${minutes}m`;
 };
 
-export const getDateString = (date) => {
-  const dateObj = new Date(date);
-  const day = dateObj.getDate();
-  const month = dateObj.getMonth() + 1;
-  const year = dateObj.getFullYear();
-
-  return `${day} ${Month[month]} ${year}`;
-};
-
 export const formatDateString = (date) => {
   return moment(date).format(`DD MMMM YYYY`);
-};
-
-export const getCommentDateString = (date) => {
-  const dateObj = new Date(date);
-  const day = dateObj.getDate();
-  const month = dateObj.getMonth() + 1;
-  const year = dateObj.getFullYear();
-  const hour = dateObj.getHours();
-  const minutes = dateObj.getMinutes();
-  return `${year}/${month}/${day} ${hour > 9 ? hour : `0${hour}`}:${minutes > 9 ? minutes : `0${minutes}`}`;
 };
 
 export const formatCommentDateString = (date) => {

@@ -1,7 +1,7 @@
 import {getDurationString, formatCommentDateString, formatDateString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
 import he from "he";
-import {UpdateType, activeId} from "../const.js";
+import {UpdateType, UserAction} from "../const.js";
 import {shakeEffect} from '../utils/common.js';
 
 const createCommentsListTemplate = (comments) => {
@@ -196,7 +196,7 @@ export default class FilmDetails extends AbstractView {
           evt.target.disabled = true;
           evt.target.innerHTML = `Deleting…`;
           const idIndex = Number(commentId.dataset.id);
-          this._commentMode = `DELETE`;
+          this._commentMode = UserAction.DELETE_COMMENT;
           this._api.deleteComment(idIndex)
             .then(() => {
               this.changeComment({id: idIndex});
@@ -217,7 +217,7 @@ export default class FilmDetails extends AbstractView {
   }
 
   _commentSubmit(emotion, comment) {
-    const NewComment = {
+    const newComment = {
       comment: he.encode(comment.value),
       date: new Date().toISOString(),
       emotion: emotion.value,
@@ -225,8 +225,8 @@ export default class FilmDetails extends AbstractView {
 
     this._commentInput.disabled = true;
 
-    this._commentMode = `ADD`;
-    this._api.addComment(this._film, NewComment)
+    this._commentMode = UserAction.ADD_COMMENT;
+    this._api.addComment(this._film, newComment)
       .then((response) => {
         this.changeComment(response.comments);
       })
@@ -239,7 +239,7 @@ export default class FilmDetails extends AbstractView {
   _commentSubmitHandler(evt) {
     const isEnter = evt.key === `Enter`;
     const isControl = evt.ctrlKey;
-    const isCmd = event.metaKey;
+    const isCmd = evt.metaKey;
     if (isEnter && (isControl || isCmd)) {
       evt.preventDefault();
       const emotion = this._element.querySelector(`input[type="radio"]:checked`);
@@ -252,7 +252,6 @@ export default class FilmDetails extends AbstractView {
 
   _closeClickHandler(evt) {
     evt.preventDefault();
-    activeId.id = 0;
     this._callback.closeClick();
   }
 
@@ -263,11 +262,11 @@ export default class FilmDetails extends AbstractView {
 
   changeComment(comment) {
     switch (this._commentMode) {
-      case `DELETE`:
+      case `DELETE_COMMENT`:
         this._commentsModel.delete(UpdateType.MINOR, comment);
         this._updateComments(this._commentsModel._comments);
         break;
-      case `ADD`:
+      case `ADD_COMMENT`:
         this._commentsModel.add(UpdateType.MINOR, comment);
         this._updateComments(this._commentsModel._comments);
         break;

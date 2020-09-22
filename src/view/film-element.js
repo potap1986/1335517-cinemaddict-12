@@ -1,6 +1,5 @@
 import {getDurationString, getCommentString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
-import {UserAction, UpdateType} from "../const.js";
 
 const createFilmElementTemplate = (film) => {
   const {poster, title, rating, duration, releaseDate, genres, description, comments, isFavorite, isWatched, inWatchlist} = film;
@@ -23,10 +22,9 @@ const createFilmElementTemplate = (film) => {
     </article>`;
 };
 export default class FilmElement extends AbstractView {
-  constructor(film, onDataChange) {
+  constructor(film) {
     super();
     this._film = film;
-    this._onDataChange = onDataChange;
     this._posterClickHandler = this._posterClickHandler.bind(this);
     this._titleClickHandler = this._titleClickHandler.bind(this);
     this._commentsClickHandler = this._commentsClickHandler.bind(this);

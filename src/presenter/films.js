@@ -101,9 +101,7 @@ export default class Films {
     if (this._currentSortType === sortType) {
       return;
     }
-    this._currentSortType = sortType;
-    this._clearFilms({resetRenderedFilmCount: true});
-    this._renderFilms();
+    this._resetFilms(sortType);
   }
 
   _handleFilterChange(filter) {
@@ -112,20 +110,15 @@ export default class Films {
     }
     this._currentFilter = filter;
     this._statsOpen = false;
-    this._clearFilms({resetRenderedFilmCount: true});
-    this._currentSortType = SortType.DEFAULT;
-    this._renderFilms();
+    this._resetFilms();
   }
 
   _handleMenuChange() {
     if (this._statsOpen === true) {
       return;
     }
-
     this._statsOpen = true;
-    this._clearFilms({resetRenderedFilmCount: true});
-    this._currentSortType = SortType.DEFAULT;
-    this._renderFilms();
+    this._resetFilms();
   }
 
   _filterFilms(filter) {
@@ -160,7 +153,7 @@ export default class Films {
       id,
       title: FilterId[id],
       count: getFilmsCount(id, this._filmsModel.getFilms()),
-      isActive: id === this._currentFilter ? true : false,
+      isActive: id === this._currentFilter,
     }));
 
     this._filtersComponent = new SiteNavigationView(filters);
@@ -191,6 +184,12 @@ export default class Films {
     const filmPresenter = new FilmPresenter(container, this._handleViewAction, this._handlePopupChange);
     filmPresenter.init(film);
     this._filmPresenter[film.id] = filmPresenter;
+  }
+
+  _resetFilms(sorting = SortType.DEFAULT) {
+    this._clearFilms({resetRenderedFilmCount: true});
+    this._currentSortType = sorting;
+    this._renderFilms();
   }
 
   _clearFilms({resetRenderedFilmCount = false, resetSortType = false} = {}) {
@@ -284,7 +283,7 @@ export default class Films {
     this._showMoreButtonComponent = new ShowMoreButtonView();
 
     this._showMoreButtonComponent.setClickHandler(() => {
-      const renderingFilms = this._getFilms().slice(this._shownFilms.length, this._shownFilms.length + this._filmsCount);
+      const renderingFilms = this._getFilms().slice(this._shownFilms.length, this._shownFilms.length + FILMS_COUNT);
       const filmCount = this._getFilms().length;
       const newRenderedFilmCount = Math.min(filmCount, this._filmsCount + FILMS_COUNT);
       this._filmsCount = newRenderedFilmCount;
@@ -292,11 +291,10 @@ export default class Films {
         this._renderFilm(this._filmsListElement, film);
       });
       this._shownFilms = this._shownFilms.concat(renderingFilms);
-      if (renderingFilms.length < FILMS_COUNT) {
+      if ((this._getFilms().length - this._shownFilms.length) < FILMS_COUNT) {
         remove(this._showMoreButtonComponent);
       }
     });
-
     if (this._getFilms().length > FILMS_COUNT) {
       render(this._filmsList, this._showMoreButtonComponent, RenderPosition.BEFOREEND);
     }
