@@ -2,7 +2,7 @@ import AbstractView from "./abstract.js";
 export default class Films extends AbstractView {
   constructor(filmsLength) {
     super();
-    this._filmsLength = filmsLength;
+    this._filmsLength = +filmsLength;
   }
 
   getTemplate() {

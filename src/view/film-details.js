@@ -1,22 +1,20 @@
 import {getDurationString, formatCommentDateString, formatDateString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
 import he from "he";
-import {generateId} from "../utils/common.js";
-// import {renderTemplate, RenderPosition} from "../utils/render.js";
-import {UpdateType, activeId /* , FilmsExtraTitleId*/} from "../const.js";
-import {Mock} from '../mock';
+import {UpdateType, activeId} from "../const.js";
+import {shakeEffect} from '../utils/common.js';
 
 const createCommentsListTemplate = (comments) => {
   return `<h3 class="film-details__comments-title">Comments <span class="film-details__comments-count">${comments.length}</span></h3>
 
   <ul class="film-details__comments-list">
-    ${comments.map(({author, date, emotion, text, id}) =>
+    ${comments.map(({author, date, emotion, comment, id}) =>
     `<li class="film-details__comment" data-id="${id}">
       <span class="film-details__comment-emoji">
         <img src="./images/emoji/${emotion}.png" width="55" height="55" alt="emoji-${emotion}">
       </span>
       <div>
-        <p class="film-details__comment-text">${text}</p>
+        <p class="film-details__comment-text">${comment}</p>
         <p class="film-details__comment-info">
           <span class="film-details__comment-author">${author}</span>
           <span class="film-details__comment-day">${formatCommentDateString(date)}</span>
@@ -75,7 +73,7 @@ const createFilmDetailsTemplate = (film, comments) => {
         </div>
         <div class="film-details__info-wrap">
           <div class="film-details__poster">
-            <img class="film-details__poster-img" src="${poster}" alt="${title}">
+            <img class="film-details__poster-img" src="./${poster}" alt="${title}">
 
             <p class="film-details__age">${ageLimit}+</p>
           </div>
@@ -155,9 +153,10 @@ const createFilmDetailsTemplate = (film, comments) => {
   </section>`;
 };
 export default class FilmDetails extends AbstractView {
-  constructor(film, commentsModel) {
+  constructor(film, commentsModel, api) {
     super();
     this._film = film;
+    this._api = api;
     this._commentsModel = commentsModel;
     this._commentMode = null;
     this.changeComment = this.changeComment.bind(this);
@@ -170,8 +169,8 @@ export default class FilmDetails extends AbstractView {
 
   init() {
     this.setCommentDeleteClickHandler();
-    const commentInput = this._element.querySelector(`.film-details__comment-input`);
-    commentInput.addEventListener(`keydown`, this._commentSubmitHandler);
+    this._commentInput = this._element.querySelector(`.film-details__comment-input`);
+    this._commentInput.addEventListener(`keydown`, this._commentSubmitHandler);
     this._element.querySelectorAll(`.film-details__emoji-item`).forEach((item) => {
       item.addEventListener(`click`, this._emotionsHandler);
     });
@@ -194,12 +193,19 @@ export default class FilmDetails extends AbstractView {
         deleteButton.addEventListener(`click`, (evt) => {
           evt.preventDefault();
           const commentId = evt.target.closest(`.film-details__comment`);
+          evt.target.disabled = true;
+          evt.target.innerHTML = `Deleting…`;
           const idIndex = Number(commentId.dataset.id);
           this._commentMode = `DELETE`;
-          // debugger;
-          this.changeComment({id: idIndex});
-          Mock.deleteComment(idIndex);
-          this._updateComments(this._commentsModel._comments);
+          this._api.deleteComment(idIndex)
+            .then(() => {
+              this.changeComment({id: idIndex});
+            })
+            .catch(() => {
+              shakeEffect(evt.target);
+              evt.target.disabled = false;
+              evt.target.innerHTML = `Delete`;
+            });
         })
       );
   }
@@ -210,17 +216,25 @@ export default class FilmDetails extends AbstractView {
     currentEmotion.innerHTML = `<img src="images/emoji/${value}.png" width="55" height="55" alt="emoji-${value}">`;
   }
 
-  _commentSubmit(emotion, text) {
+  _commentSubmit(emotion, comment) {
     const NewComment = {
-      id: generateId(),
-      author: `MyName`,
-      date: Date.now(),
+      comment: he.encode(comment.value),
+      date: new Date().toISOString(),
       emotion: emotion.value,
-      text: he.encode(text.value),
     };
+
+    this._commentInput.disabled = true;
+    shakeEffect(this._element);
+
     this._commentMode = `ADD`;
-    this.changeComment(NewComment);
-    Mock.postComment(this._film.id, NewComment);
+    this._api.addComment(this._film, NewComment)
+      .then((response) => {
+        this.changeComment(response.comments);
+      })
+      .catch(() => {
+        shakeEffect(this._element);
+        this._commentInput.disabled = false;
+      });
   }
 
   _commentSubmitHandler(evt) {
@@ -230,10 +244,9 @@ export default class FilmDetails extends AbstractView {
     if (isEnter && (isControl || isCmd)) {
       evt.preventDefault();
       const emotion = this._element.querySelector(`input[type="radio"]:checked`);
-      const text = this._element.querySelector(`textarea`);
-      if (emotion && text.value.length > 0) {
-        this._commentSubmit(emotion, text);
-        this._updateComments(this._commentsModel._comments);
+      const comment = this._element.querySelector(`textarea`);
+      if (emotion && comment.value.length > 0) {
+        this._commentSubmit(emotion, comment);
       }
     }
   }
@@ -253,25 +266,12 @@ export default class FilmDetails extends AbstractView {
     switch (this._commentMode) {
       case `DELETE`:
         this._commentsModel.delete(UpdateType.MINOR, comment);
+        this._updateComments(this._commentsModel._comments);
         break;
       case `ADD`:
         this._commentsModel.add(UpdateType.MINOR, comment);
+        this._updateComments(this._commentsModel._comments);
         break;
     }
-  }
-
-  setWatchlistPopupClickHandler(callback) {
-    this._callback.watchlistClick = callback;
-    this.getElement().querySelector(`.film-details__control-label--watchlist`).addEventListener(`click`, callback);
-  }
-
-  setWatchedPopupClickHandler(callback) {
-    this._callback.watchedClick = callback;
-    this.getElement().querySelector(`.film-details__control-label--watched`).addEventListener(`click`, callback);
-  }
-
-  setFavoritePopupClickHandler(callback) {
-    this._callback.favoriteClick = callback;
-    this.getElement().querySelector(`.film-details__control-label--favorite`).addEventListener(`click`, callback);
   }
 }

@@ -1,15 +1,11 @@
-export const getRandomBool = (chance = 0.5) => Math.random() < chance;
+import {SHAKE_ANIMATION_TIMEOUT} from '../const.js';
 
-export const getRandomItem = (array) => array[Math.floor(Math.random() * array.length)];
-
-export const getRandomNumber = (min = 0, max) => Math.floor(Math.random() * (max - min + 1)) + min;
-
-export const getRandomUniqueArray = (length = 5) => [...new Set(Array.from({length}, getRandomNumber))];
-
-const getRandomSorting = () => Math.random() - 0.5;
-
-export const getRandomSet = (items, num = 3) =>
-  [...new Set(items.sort(getRandomSorting).slice(0, num))];
+export const shakeEffect = (element) => {
+  element.style.animation = `shake ${SHAKE_ANIMATION_TIMEOUT / 1000}s`;
+  setTimeout(() => {
+    element.style.animation = ``;
+  }, SHAKE_ANIMATION_TIMEOUT);
+};
 
 export const updateItem = (items, update) => {
   const index = items.findIndex((item) => item.id === update.id);
@@ -24,8 +20,6 @@ export const updateItem = (items, update) => {
     ...items.slice(index + 1)
   ];
 };
-
-export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 export const getCurrentDate = () => {
   const currentDate = new Date();

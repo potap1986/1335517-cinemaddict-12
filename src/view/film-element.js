@@ -1,8 +1,6 @@
 import {getDurationString, getCommentString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
 import {UserAction, UpdateType} from "../const.js";
-import {Mock} from '../mock.js';
-
 
 const createFilmElementTemplate = (film) => {
   const {poster, title, rating, duration, releaseDate, genres, description, comments, isFavorite, isWatched, inWatchlist} = film;
@@ -14,7 +12,7 @@ const createFilmElementTemplate = (film) => {
         <span class="film-card__duration">${getDurationString(duration)}</span>
         <span class="film-card__genre">${genres[0]}</span>
       </p>
-      <img src="${poster}" alt="${title} poster" class="film-card__poster">
+      <img src="./${poster}" alt="${title} poster" class="film-card__poster">
       <p class="film-card__description">${description}</p>
       <a class="film-card__comments">${getCommentString(comments)}</a>
       <form class="film-card__controls">
@@ -84,7 +82,6 @@ export default class FilmElement extends AbstractView {
         )
     );
 
-    Mock.putMovie(Object.assign({}, {id: this._film.id, inWatchlist: !this._film.inWatchlist}));
     this._callback.watchlistClick();
     this._toggleActiveClass(evt.target);
   }
@@ -103,7 +100,6 @@ export default class FilmElement extends AbstractView {
         )
     );
 
-    Mock.putMovie(Object.assign({}, {id: this._film.id, isWatched: !this._film.isWatched}));
     this._callback.watchedClick();
     this._toggleActiveClass(evt.target);
   }
@@ -122,7 +118,6 @@ export default class FilmElement extends AbstractView {
         )
     );
 
-    Mock.putMovie(Object.assign({}, {id: this._film.id, isFavorite: !this._film.isFavorite}));
     this._callback.favoriteClick();
     this._toggleActiveClass(evt.target);
   }
