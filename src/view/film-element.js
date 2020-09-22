@@ -70,54 +70,18 @@ export default class FilmElement extends AbstractView {
 
   _watchlistClickHandler(evt) {
     evt.preventDefault();
-    this._onDataChange(
-        UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
-        Object.assign(
-            {},
-            this._film,
-            {
-              inWatchlist: !this._film.inWatchlist
-            }
-        )
-    );
-
     this._callback.watchlistClick();
     this._toggleActiveClass(evt.target);
   }
 
   _watchedClickHandler(evt) {
     evt.preventDefault();
-    this._onDataChange(
-        UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
-        Object.assign(
-            {},
-            this._film,
-            {
-              isWatched: !this._film.isWatched
-            }
-        )
-    );
-
     this._callback.watchedClick();
     this._toggleActiveClass(evt.target);
   }
 
   _favoriteClickHandler(evt) {
     evt.preventDefault();
-    this._onDataChange(
-        UserAction.UPDATE_FILM,
-        UpdateType.MINOR,
-        Object.assign(
-            {},
-            this._film,
-            {
-              isFavorite: !this._film.isFavorite
-            }
-        )
-    );
-
     this._callback.favoriteClick();
     this._toggleActiveClass(evt.target);
   }
