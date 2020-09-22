@@ -224,7 +224,6 @@ export default class FilmDetails extends AbstractView {
     };
 
     this._commentInput.disabled = true;
-    shakeEffect(this._element);
 
     this._commentMode = `ADD`;
     this._api.addComment(this._film, NewComment)

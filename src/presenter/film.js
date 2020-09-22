@@ -42,9 +42,12 @@ export default class Film {
       this._filmComponent.setCommentsClickHandler(this._openPopup);
     }
 
-    this._filmComponent.setWatchlistClickHandler();
-    this._filmComponent.setWatchedClickHandler();
-    this._filmComponent.setFavoriteClickHandler();
+    this._handleWatchlistClick = this._handleWatchlistClick.bind(this);
+    this._handleWatchedClick = this._handleWatchedClick.bind(this);
+    this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
+    this._filmComponent.setWatchlistClickHandler(this._handleWatchlistClick);
+    this._filmComponent.setWatchedClickHandler(this._handleWatchedClick);
+    this._filmComponent.setFavoriteClickHandler(this._handleFavoriteClick);
 
     if (activeId.id === this._filmId) {
       this._openPopup();
@@ -113,6 +116,48 @@ export default class Film {
             {},
             this._film,
             state
+        )
+    );
+  }
+
+  _handleWatchlistClick() {
+    this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign(
+            {},
+            this._film,
+            {
+              inWatchlist: !this._film.inWatchlist
+            }
+        )
+    );
+  }
+
+  _handleWatchedClick() {
+    this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign(
+            {},
+            this._film,
+            {
+              isWatched: !this._film.isWatched
+            }
+        )
+    );
+  }
+
+  _handleFavoriteClick() {
+    this._changeData(
+        UserAction.UPDATE_FILM,
+        UpdateType.MINOR,
+        Object.assign(
+            {},
+            this._film,
+            {
+              isFavorite: !this._film.isFavorite
+            }
         )
     );
   }
