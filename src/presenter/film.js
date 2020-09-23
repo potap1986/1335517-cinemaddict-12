@@ -69,6 +69,12 @@ export default class Film {
     }
   }
 
+  resetView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._closePopup();
+    }
+  }
+
   _openPopup() {
     this._api = new Api(END_POINT, AUTHORIZATION);
     this._api.getComments(this._film)
@@ -82,12 +88,6 @@ export default class Film {
     this._mode = Mode.OPEN_POPUP;
 
     document.addEventListener(`keydown`, this._escKeyDownHandler);
-  }
-
-  resetView() {
-    if (this._mode !== Mode.DEFAULT) {
-      this._closePopup();
-    }
   }
 
   _closePopup() {

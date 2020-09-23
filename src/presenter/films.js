@@ -52,73 +52,9 @@ export default class Films {
     }
   }
 
-  _handlePopupChange() {
-    Object
-      .values(this._filmPresenter)
-      .forEach((presenter) => presenter.resetView());
-  }
-
-  _handleViewAction(actionType, updateType, update) {
-    switch (actionType) {
-      case UserAction.UPDATE_FILM:
-        this._api.updateFilm(update).then((response) => {
-          this._filmsModel.updateFilm(updateType, response);
-        });
-        break;
-    }
-  }
-
   _updateFilters() {
     this._filtersComponent.getElement().remove();
     this._renderFilters();
-  }
-
-  _handleModelEvent(updateType, data) {
-    switch (updateType) {
-      case UpdateType.PATCH:
-        this._filmPresenter[data.id].init(data);
-        break;
-      case UpdateType.MINOR:
-        this._clearFilms();
-        this._renderFilms();
-        break;
-      case UpdateType.MAJOR:
-        this._clearFilms({resetRenderedFilmCount: true, resetSortType: true});
-        this._renderFilms();
-        break;
-      case UpdateType.FILTERS:
-        this._updateFilters();
-        break;
-      case UpdateType.INIT:
-        this._isLoading = false;
-        this._clearFilms({resetRenderedFilmCount: true, resetSortType: true});
-        this._renderFilms();
-        break;
-    }
-  }
-
-  _handleSortTypeChange(sortType) {
-    if (this._currentSortType === sortType) {
-      return;
-    }
-    this._resetFilms(sortType);
-  }
-
-  _handleFilterChange(filter) {
-    if (this._currentFilter === filter) {
-      return;
-    }
-    this._currentFilter = filter;
-    this._statsOpen = false;
-    this._resetFilms();
-  }
-
-  _handleMenuChange() {
-    if (this._statsOpen === true) {
-      return;
-    }
-    this._statsOpen = true;
-    this._resetFilms();
   }
 
   _filterFilms(filter) {
@@ -298,5 +234,69 @@ export default class Films {
     if (this._getFilms().length > FILMS_COUNT) {
       render(this._filmsList, this._showMoreButtonComponent, RenderPosition.BEFOREEND);
     }
+  }
+
+  _handlePopupChange() {
+    Object
+      .values(this._filmPresenter)
+      .forEach((presenter) => presenter.resetView());
+  }
+
+  _handleViewAction(actionType, updateType, update) {
+    switch (actionType) {
+      case UserAction.UPDATE_FILM:
+        this._api.updateFilm(update).then((response) => {
+          this._filmsModel.updateFilm(updateType, response);
+        });
+        break;
+    }
+  }
+
+  _handleModelEvent(updateType, data) {
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this._filmPresenter[data.id].init(data);
+        break;
+      case UpdateType.MINOR:
+        this._clearFilms();
+        this._renderFilms();
+        break;
+      case UpdateType.MAJOR:
+        this._clearFilms({resetRenderedFilmCount: true, resetSortType: true});
+        this._renderFilms();
+        break;
+      case UpdateType.FILTERS:
+        this._updateFilters();
+        break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        this._clearFilms({resetRenderedFilmCount: true, resetSortType: true});
+        this._renderFilms();
+        break;
+    }
+  }
+
+  _handleSortTypeChange(sortType) {
+    if (this._currentSortType === sortType) {
+      return;
+    }
+    this._resetFilms(sortType);
+  }
+
+  _handleFilterChange(filter) {
+    if (this._currentFilter === filter) {
+      return;
+    }
+    this._currentFilter = filter;
+    this._statsOpen = false;
+    this._resetFilms();
+  }
+
+  _handleMenuChange() {
+    if (this._statsOpen === true) {
+      return;
+    }
+    this._statsOpen = true;
+    this._resetFilms();
   }
 }

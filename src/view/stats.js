@@ -143,6 +143,16 @@ export default class StatsElement extends SmartView {
     this._setInnerHandlers();
   }
 
+  _setChart() {
+    if (this._genreChart !== null) {
+      this._genreChart = null;
+    }
+
+    const statisticCtx = this.getElement().querySelector(`.statistic__chart`);
+
+    this._genreChart = renderGenreChart(statisticCtx, this._data.watchedFilms);
+  }
+
   _setInnerHandlers() {
     this.getElement().querySelector(`.statistic__filters`).addEventListener(`change`, this._periodChangeHandler);
   }
@@ -191,15 +201,5 @@ export default class StatsElement extends SmartView {
 
       this.updateData(update);
     }
-  }
-
-  _setChart() {
-    if (this._genreChart !== null) {
-      this._genreChart = null;
-    }
-
-    const statisticCtx = this.getElement().querySelector(`.statistic__chart`);
-
-    this._genreChart = renderGenreChart(statisticCtx, this._data.watchedFilms);
   }
 }
