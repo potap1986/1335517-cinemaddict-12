@@ -3,12 +3,6 @@ export const BAR_HEIGHT = 50;
 export const AUTHORIZATION = `Basic11 h2k24hk5hosa2j`;
 export const END_POINT = `https://12.ecmascript.pages.academy/cinemaddict`;
 export const SHAKE_ANIMATION_TIMEOUT = 600;
-export const Time = {
-  DAY: 24 * 60 * 60 * 1000,
-  WEEK: 7 * 24 * 60 * 60 * 1000,
-  MONTH: 30 * 24 * 60 * 60 * 1000,
-  YEAR: 365 * 24 * 60 * 60 * 1000,
-};
 export const StatisticPeriod = {
   ALL_TIME: `all-time`,
   TODAY: `today`,
@@ -16,19 +10,18 @@ export const StatisticPeriod = {
   MONTH: `month`,
   YEAR: `year`
 };
-export const Month = {
-  1: `January`,
-  2: `February`,
-  3: `March`,
-  4: `April`,
-  5: `May`,
-  6: `June`,
-  7: `July`,
-  8: `August`,
-  9: `September`,
-  10: `October`,
-  11: `November`,
-  12: `December`,
+export const FilmsForRating = {
+  NOVICE: {
+    MIN: 1,
+    MAX: 10
+  },
+  FAN: {
+    MIN: 11,
+    MAX: 20
+  },
+  MOVIE_BUFF: {
+    MIN: 21
+  }
 };
 export const SortType = {
   DEFAULT: `default`,
@@ -46,17 +39,14 @@ export const UserAction = {
   ADD_COMMENT: `ADD_COMMENT`,
   DELETE_COMMENT: `DELETE_COMMENT`
 };
+export const Mode = {
+  DEFAULT: `DEFAULT`,
+  OPEN_POPUP: `OPEN_POPUP`
+};
 export const UpdateType = {
   PATCH: `PATCH`,
   MINOR: `MINOR`,
   MAJOR: `MAJOR`,
   FILTERS: `FILTERS`,
   INIT: `INIT`
-};
-export const activeId = {
-  id: 0,
-};
-export const State = {
-  SAVING: `SAVING`,
-  DELETING: `DELETING`
 };

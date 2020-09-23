@@ -21,6 +21,16 @@ export default class SiteNavigation extends AbstractView {
     return createSiteNavigationTemplate(this._filters);
   }
 
+  setFilterChangeHandler(callback) {
+    this._callback.filterChange = callback;
+    this.getElement().addEventListener(`click`, this._filterChangeHandler);
+  }
+
+  setStatsOpenHandler(callback) {
+    this._callback.statsOpen = callback;
+    this.getElement().addEventListener(`click`, this._menuChangeHandler);
+  }
+
   _filterChangeHandler(evt) {
     if (evt.target.tagName !== `A` && evt.target.id === `stats`) {
       return;
@@ -39,15 +49,5 @@ export default class SiteNavigation extends AbstractView {
       this._callback.statsOpen();
       return;
     }
-  }
-
-  setFilterChangeHandler(callback) {
-    this._callback.filterChange = callback;
-    this.getElement().addEventListener(`click`, this._filterChangeHandler);
-  }
-
-  setStatsOpenHandler(callback) {
-    this._callback.statsOpen = callback;
-    this.getElement().addEventListener(`click`, this._menuChangeHandler);
   }
 }

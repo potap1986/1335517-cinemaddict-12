@@ -1,7 +1,7 @@
 import {getDurationString, formatCommentDateString, formatDateString} from '../utils/task.js';
 import AbstractView from "./abstract.js";
 import he from "he";
-import {UpdateType, activeId} from "../const.js";
+import {UpdateType, UserAction} from "../const.js";
 import {shakeEffect} from '../utils/common.js';
 
 const createCommentsListTemplate = (comments) => {
@@ -180,10 +180,17 @@ export default class FilmDetails extends AbstractView {
     return createFilmDetailsTemplate(this._film, this._commentsModel.getComments());
   }
 
-  _updateComments(comments) {
-    const commentWrapper = document.querySelector(`.film-details__comments-wrap`);
-    commentWrapper.innerHTML = `${createCommentsListTemplate(comments)} ${createNewCommentTemplate()}`;
-    this.init();
+  changeComment(comment) {
+    switch (this._commentMode) {
+      case `DELETE_COMMENT`:
+        this._commentsModel.delete(UpdateType.MINOR, comment);
+        this._updateComments(this._commentsModel._comments);
+        break;
+      case `ADD_COMMENT`:
+        this._commentsModel.add(UpdateType.MINOR, comment);
+        this._updateComments(this._commentsModel._comments);
+        break;
+    }
   }
 
   setCommentDeleteClickHandler() {
@@ -196,18 +203,48 @@ export default class FilmDetails extends AbstractView {
           evt.target.disabled = true;
           evt.target.innerHTML = `Deleting…`;
           const idIndex = Number(commentId.dataset.id);
-          this._commentMode = `DELETE`;
+          this._commentMode = UserAction.DELETE_COMMENT;
           this._api.deleteComment(idIndex)
             .then(() => {
               this.changeComment({id: idIndex});
             })
             .catch(() => {
-              shakeEffect(evt.target);
+              shakeEffect(evt.target.closest(`li`));
               evt.target.disabled = false;
               evt.target.innerHTML = `Delete`;
             });
         })
       );
+  }
+
+  setCloseClickHandler(callback) {
+    this._callback.closeClick = callback;
+    this.getElement().querySelector(`.film-details__close-btn`).addEventListener(`click`, this._closeClickHandler);
+  }
+
+  _updateComments(comments) {
+    const commentWrapper = document.querySelector(`.film-details__comments-wrap`);
+    commentWrapper.innerHTML = `${createCommentsListTemplate(comments)} ${createNewCommentTemplate()}`;
+    this.init();
+  }
+
+  _commentSubmit(emotion, comment) {
+    const newComment = {
+      comment: he.encode(comment.value),
+      date: new Date().toISOString(),
+      emotion: emotion.value,
+    };
+
+    this._commentInput.disabled = true;
+    this._commentMode = UserAction.ADD_COMMENT;
+    this._api.addComment(this._film, newComment)
+      .then((response) => {
+        this.changeComment(response.comments);
+      })
+      .catch(() => {
+        shakeEffect(this._element.querySelector(`.film-details__new-comment`));
+        this._commentInput.disabled = false;
+      });
   }
 
   _emotionsHandler(evt) {
@@ -216,30 +253,10 @@ export default class FilmDetails extends AbstractView {
     currentEmotion.innerHTML = `<img src="images/emoji/${value}.png" width="55" height="55" alt="emoji-${value}">`;
   }
 
-  _commentSubmit(emotion, comment) {
-    const NewComment = {
-      comment: he.encode(comment.value),
-      date: new Date().toISOString(),
-      emotion: emotion.value,
-    };
-
-    this._commentInput.disabled = true;
-
-    this._commentMode = `ADD`;
-    this._api.addComment(this._film, NewComment)
-      .then((response) => {
-        this.changeComment(response.comments);
-      })
-      .catch(() => {
-        shakeEffect(this._element);
-        this._commentInput.disabled = false;
-      });
-  }
-
   _commentSubmitHandler(evt) {
     const isEnter = evt.key === `Enter`;
     const isControl = evt.ctrlKey;
-    const isCmd = event.metaKey;
+    const isCmd = evt.metaKey;
     if (isEnter && (isControl || isCmd)) {
       evt.preventDefault();
       const emotion = this._element.querySelector(`input[type="radio"]:checked`);
@@ -252,25 +269,6 @@ export default class FilmDetails extends AbstractView {
 
   _closeClickHandler(evt) {
     evt.preventDefault();
-    activeId.id = 0;
     this._callback.closeClick();
-  }
-
-  setCloseClickHandler(callback) {
-    this._callback.closeClick = callback;
-    this.getElement().querySelector(`.film-details__close-btn`).addEventListener(`click`, this._closeClickHandler);
-  }
-
-  changeComment(comment) {
-    switch (this._commentMode) {
-      case `DELETE`:
-        this._commentsModel.delete(UpdateType.MINOR, comment);
-        this._updateComments(this._commentsModel._comments);
-        break;
-      case `ADD`:
-        this._commentsModel.add(UpdateType.MINOR, comment);
-        this._updateComments(this._commentsModel._comments);
-        break;
-    }
   }
 }
